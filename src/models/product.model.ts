@@ -21,7 +21,7 @@
 
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface IProduct extends Document {
+export interface ProductInput {
   name: string;
   location: string;
   price: number;
@@ -34,6 +34,7 @@ export interface IProduct extends Document {
   featured: boolean;
   discount: number;
 }
+
 
 const ProductSchema: Schema = new Schema(
   {
@@ -57,4 +58,4 @@ const ProductSchema: Schema = new Schema(
 );
 
 export default mongoose.models.Product ||
-  mongoose.model<IProduct>("Product", ProductSchema);
+  mongoose.model<ProductInput>("Product", ProductSchema);

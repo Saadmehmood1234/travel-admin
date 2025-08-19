@@ -122,7 +122,7 @@ const ProductLayout = () => {
     const getData = async () => {
       try {
         const res = await getProducts();
-        console.log(res.data); // 👀 check API response shape
+        console.log(res.data); //  check API response shape
         setProducts(res.data || []); // make sure res.data is an array
       } catch (error) {
         console.error("Error fetching products:", error);

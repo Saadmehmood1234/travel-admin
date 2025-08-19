@@ -104,9 +104,21 @@ export const getProductById = async (
     };
   }
 };
-
+export interface ProductInput {
+  name: string;
+  location: string;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviews: number;
+  duration: string;
+  category: "Beach" | "Adventure" | "Luxury" | "Family-Friendly";
+  image: string;
+  featured: boolean;
+  discount: number;
+}
 export const createProduct = async (
-  productData: Omit<IProduct, "_id" | "createdAt" | "updatedAt">
+  productData: ProductInput
 ): Promise<{
   success: boolean;
   data?: SerializedProduct;
@@ -127,6 +139,7 @@ export const createProduct = async (
     };
   }
 };
+
 
 export const updateProduct = async (
   id: string,
