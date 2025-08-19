@@ -111,10 +111,25 @@
 
 
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import DynamicPage from "../components/dynamic-page";
+import { getProducts } from "@/actions/product.actions";
 
 const ProductLayout = () => {
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    const getData = async () => {
+      try {
+        const res = await getProducts();
+        console.log(res.data); // 👀 check API response shape
+        setProducts(res.data || []); // make sure res.data is an array
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+    getData();
+  }, []);
 
   const contentTitleBarContent = {
     title: "Products",
@@ -130,27 +145,25 @@ const ProductLayout = () => {
 
   const tableContent = {
     columns: [
-      {
-        accessorKey: "name",
-        header: "Package Name",
-      },
-      {
-        accessorKey: "location",
-        header: "Location",
-      },
+      { accessorKey: "name", header: "Package Name" },
+      { accessorKey: "location", header: "Location" },
       {
         accessorKey: "category",
         header: "Category",
-        cell: ({ row }:any) => {
+        cell: ({ row }: any) => {
           const category = row.getValue("category");
-          const categoryColors = {
-            "Beach": "bg-blue-100 text-blue-800",
-            "Adventure": "bg-green-100 text-green-800",
-            "Luxury": "bg-purple-100 text-purple-800",
-            "Family-Friendly": "bg-yellow-100 text-yellow-800"
+          const categoryColors: Record<string, string> = {
+            Beach: "bg-blue-100 text-blue-800",
+            Adventure: "bg-green-100 text-green-800",
+            Luxury: "bg-purple-100 text-purple-800",
+            "Family-Friendly": "bg-yellow-100 text-yellow-800",
           };
           return (
-            <span className={`px-2 py-1 rounded-full text-xs font-medium ${categoryColors[category]}`}>
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                categoryColors[category] || "bg-gray-100 text-gray-800"
+              }`}
+            >
               {category}
             </span>
           );
@@ -159,11 +172,11 @@ const ProductLayout = () => {
       {
         accessorKey: "price",
         header: "Price",
-        cell: ({ row }:any) => {
+        cell: ({ row }: any) => {
           const price = parseFloat(row.getValue("price"));
-          const originalPrice = parseFloat(row.original.originalPrice);
-          const discount = row.original.discount;
-          
+          const originalPrice = parseFloat(row.original.originalPrice || price);
+          const discount = row.original.discount || 0;
+
           const formattedPrice = new Intl.NumberFormat("en-US", {
             style: "currency",
             currency: "USD",
@@ -192,14 +205,14 @@ const ProductLayout = () => {
       {
         accessorKey: "rating",
         header: "Rating",
-        cell: ({ row }:any) => {
-          const rating = parseFloat(row.getValue("rating"));
+        cell: ({ row }: any) => {
+          const rating = parseFloat(row.getValue("rating") || 0);
           return (
             <div className="flex items-center">
               <span className="mr-1 font-medium">{rating.toFixed(1)}</span>
               <span className="text-yellow-400">★</span>
               <span className="text-gray-400 text-xs ml-1">
-                ({row.original.reviews} reviews)
+                ({row.original.reviews || 0} reviews)
               </span>
             </div>
           );
@@ -208,7 +221,7 @@ const ProductLayout = () => {
       {
         accessorKey: "featured",
         header: "Featured",
-        cell: ({ row }:any) => {
+        cell: ({ row }: any) => {
           const featured: boolean = row.getValue("featured");
           return featured ? (
             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
@@ -220,7 +233,7 @@ const ProductLayout = () => {
       {
         id: "actions",
         header: "Actions",
-        cell: ({ row }:any) => {
+        cell: ({ row }: any) => {
           const product = row.original;
           return (
             <div className="flex space-x-2">
@@ -241,64 +254,7 @@ const ProductLayout = () => {
         },
       },
     ],
-    rows: [
-      {
-        id: "p1",
-        name: "Maldives Beach Paradise",
-        location: "Maldives",
-        price: 1200,
-        originalPrice: 1500,
-        rating: 4.8,
-        reviews: 124,
-        duration: "7 days",
-        category: "Beach",
-        image: "/images/maldives.jpg",
-        featured: true,
-        discount: 20,
-      },
-      {
-        id: "p2",
-        name: "Himalayan Trek Adventure",
-        location: "Nepal",
-        price: 899,
-        originalPrice: 999,
-        rating: 4.6,
-        reviews: 89,
-        duration: "10 days",
-        category: "Adventure",
-        image: "/images/himalayas.jpg",
-        featured: false,
-        discount: 10,
-      },
-      {
-        id: "p3",
-        name: "Luxury Dubai Experience",
-        location: "Dubai",
-        price: 2500,
-        originalPrice: 2500,
-        rating: 4.9,
-        reviews: 215,
-        duration: "5 days",
-        category: "Luxury",
-        image: "/images/dubai.jpg",
-        featured: true,
-        discount: 0,
-      },
-      {
-        id: "p4",
-        name: "Disney World Family Package",
-        location: "Florida",
-        price: 1800,
-        originalPrice: 2000,
-        rating: 4.7,
-        reviews: 156,
-        duration: "6 days",
-        category: "Family-Friendly",
-        image: "/images/disney.jpg",
-        featured: false,
-        discount: 10,
-      },
-    ],
+    rows: products, // 👈 now using API data
   };
 
   return (
