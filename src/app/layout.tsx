@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
 import { Sidebar } from "./components/sidebar";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -23,49 +24,54 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex bg-gray-50`}
-      >
+return (
+  <html lang="en">
+    <body
+      className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50`}
+    >
+      <div className="flex min-h-screen">
         <Sidebar />
-        <main className="flex-1 md:ml-64 p-6">{children}</main>
-        <Toaster
-          position="top-right"
-          toastOptions={{
+        {/* Make the main content scrollable independently */}
+        <main className="flex-1 md:ml-0 p-4 md:p-6 transition-all duration-300 overflow-auto">
+          {children}
+        </main>
+      </div>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background:
+              "linear-gradient(135deg, rgba(59,130,246,0.9), rgba(168,85,247,0.9))",
+            color: "#fff",
+            border: "1px solid rgba(255, 255, 255, 0.2)",
+            borderRadius: "1rem",
+            backdropFilter: "blur(12px)",
+            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+            padding: "12px 16px",
+            fontWeight: 500,
+          },
+          success: {
+            duration: 3000,
+            iconTheme: {
+              primary: "#38bdf8",
+              secondary: "#fff",
+            },
+          },
+          error: {
             style: {
               background:
-                "linear-gradient(135deg, rgba(59,130,246,0.9), rgba(168,85,247,0.9))", // from-primary-400 to-secondary-400
-              color: "#fff",
+                "linear-gradient(135deg, rgba(239,68,68,0.9), rgba(220,38,38,0.9))",
               border: "1px solid rgba(255, 255, 255, 0.2)",
-              borderRadius: "1rem",
-              backdropFilter: "blur(12px)",
-              boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
-              padding: "12px 16px",
-              fontWeight: 500,
             },
-            success: {
-              duration: 3000,
-              iconTheme: {
-                primary: "#38bdf8", // primary-300
-                secondary: "#fff",
-              },
-            },
-            error: {
-              style: {
-                background:
-                  "linear-gradient(135deg, rgba(239,68,68,0.9), rgba(220,38,38,0.9))", // red gradient
-                border: "1px solid rgba(255, 255, 255, 0.2)",
-              },
-              iconTheme: { primary: "#ef4444", secondary: "#fff" },
-            },
-            loading: {
-              duration: Infinity,
-              iconTheme: { primary: "#facc15", secondary: "#fff" }, // yellow
-            },
-          }}
-        />
-      </body>
-    </html>
-  );
+            iconTheme: { primary: "#ef4444", secondary: "#fff" },
+          },
+          loading: {
+            duration: Infinity,
+            iconTheme: { primary: "#facc15", secondary: "#fff" },
+          },
+        }}
+      />
+    </body>
+  </html>
+);
 }
