@@ -104,6 +104,10 @@ export const getProductById = async (
     };
   }
 };
+
+
+export type DifficultyLevel = "Easy" | "Moderate" | "Hard";
+
 export interface ProductInput {
   name: string;
   location: string;
@@ -112,11 +116,20 @@ export interface ProductInput {
   rating: number;
   reviews: number;
   duration: string;
-  category: "Beach" | "Adventure" | "Luxury" | "Family-Friendly";
+  category: ProductCategory;
   image: string;
   featured: boolean;
   discount: number;
+  highlights?: string[];
+  groupSize?: string;
+  difficulty?: DifficultyLevel;
+  availableDates?: Date[];
+  inclusions?: string[];
+  exclusions?: string[];
+  itinerary?: string[];
+  isCommunityTrip?: boolean;
 }
+
 export const createProduct = async (
   productData: ProductInput
 ): Promise<{
@@ -126,7 +139,9 @@ export const createProduct = async (
 }> => {
   try {
     await dbConnect();
+
     const product = await Product.create(productData);
+
     return {
       success: true,
       data: serializeProduct(product),
@@ -139,6 +154,8 @@ export const createProduct = async (
     };
   }
 };
+
+// Utility function to serialize product for frontend
 
 
 export const updateProduct = async (
@@ -194,6 +211,163 @@ export const deleteProduct = async (
     return {
       success: false,
       error: "Failed to delete product",
+    };
+  }
+};
+
+export const getProductsCount = async (): Promise<{
+  success: boolean;
+  count?: number;
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    const count = await Product.countDocuments();
+    return {
+      success: true,
+      count,
+    };
+  } catch (error) {
+    console.error("Error counting products:", error);
+    return {
+      success: false,
+      error: "Failed to count products",
+    };
+  }
+};
+
+export const getProductsCountByCategory = async (): Promise<{
+  success: boolean;
+  data?: { category: ProductCategory; count: number }[];
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    const counts = await Product.aggregate([
+      {
+        $group: {
+          _id: "$category",
+          count: { $sum: 1 }
+        }
+      },
+      {
+        $project: {
+          category: "$_id",
+          count: 1,
+          _id: 0
+        }
+      },
+      {
+        $sort: { count: -1 }
+      }
+    ]);
+    
+    return {
+      success: true,
+      data: counts,
+    };
+  } catch (error) {
+    console.error("Error counting products by category:", error);
+    return {
+      success: false,
+      error: "Failed to count products by category",
+    };
+  }
+};
+
+export const getProductsCountByFeatured = async (): Promise<{
+  success: boolean;
+  featured?: number;
+  nonFeatured?: number;
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    const [featuredCount, nonFeaturedCount] = await Promise.all([
+      Product.countDocuments({ featured: true }),
+      Product.countDocuments({ featured: false })
+    ]);
+    
+    return {
+      success: true,
+      featured: featuredCount,
+      nonFeatured: nonFeaturedCount,
+    };
+  } catch (error) {
+    console.error("Error counting products by featured status:", error);
+    return {
+      success: false,
+      error: "Failed to count products by featured status",
+    };
+  }
+};
+
+export const getProductsStats = async (): Promise<{
+  success: boolean;
+  data?: {
+    total: number;
+    byCategory: { category: ProductCategory; count: number }[];
+    featured: number;
+    nonFeatured: number;
+    averagePrice: number;
+    minPrice: number;
+    maxPrice: number;
+  };
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    
+    const [total, byCategory, featuredCount, priceStats] = await Promise.all([
+      Product.countDocuments(),
+      Product.aggregate([
+        {
+          $group: {
+            _id: "$category",
+            count: { $sum: 1 }
+          }
+        },
+        {
+          $project: {
+            category: "$_id",
+            count: 1,
+            _id: 0
+          }
+        }
+      ]),
+      Product.countDocuments({ featured: true }),
+      Product.aggregate([
+        {
+          $group: {
+            _id: null,
+            averagePrice: { $avg: "$price" },
+            minPrice: { $min: "$price" },
+            maxPrice: { $max: "$price" }
+          }
+        }
+      ])
+    ]);
+    
+    const nonFeaturedCount = total - featuredCount;
+    const priceData = priceStats[0] || { averagePrice: 0, minPrice: 0, maxPrice: 0 };
+    
+    return {
+      success: true,
+      data: {
+        total,
+        byCategory,
+        featured: featuredCount,
+        nonFeatured: nonFeaturedCount,
+        averagePrice: Math.round(priceData.averagePrice || 0),
+        minPrice: priceData.minPrice || 0,
+        maxPrice: priceData.maxPrice || 0,
+      },
+    };
+  } catch (error) {
+    console.error("Error getting product statistics:", error);
+    return {
+      success: false,
+      error: "Failed to get product statistics",
     };
   }
 };

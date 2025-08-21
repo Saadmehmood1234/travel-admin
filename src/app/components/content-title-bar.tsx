@@ -9,13 +9,17 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-const ContentTitleBar = ({ contentTitleBarContent }: { contentTitleBarContent: ContentTitleBarProps }) => {
+const ContentTitleBar = ({
+  contentTitleBarContent,
+}: {
+  contentTitleBarContent: ContentTitleBarProps;
+}) => {
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
   const { title, subTitle, buttons } = contentTitleBarContent;
 
   const handleAddProductToggle = () => {
-    setIsAddProductOpen(prev => !prev);
+    setIsAddProductOpen((prev) => !prev);
   };
 
   return (
@@ -41,7 +45,7 @@ const ContentTitleBar = ({ contentTitleBarContent }: { contentTitleBarContent: C
       </div>
 
       <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
-        <DialogContent className="sm:max-w-[625px]">
+        <DialogContent className="sm:max-w-[1025px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Add New Product</DialogTitle>
           </DialogHeader>

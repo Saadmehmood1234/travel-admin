@@ -1,27 +1,6 @@
-// import dynamicModelGenerator from "@/lib/dynamic-model-generator";
-// import { ProductType } from "@/types";
-// import { Schema } from "mongoose"
-// // const ProductFields = {
-// //     title: string,
-// //     location: string,
-// //     price: number,
-// //     originalPrice: number,
-// //     rating?: number,
-// //     category: string,
-// //     imgUrl: string,
-// //     description: string,
-// //     reviews: number,
-// //     discount?: {
-// //         token: string,
-// //         amount: number,
-// //     }
-// // }
-// const ProductSchema: ProductType = new Schema(dynamicModelGenerator(ProductType))
-
-
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface ProductInput {
+export interface ProductInput extends Document {
   name: string;
   location: string;
   price: number;
@@ -33,8 +12,15 @@ export interface ProductInput {
   image: string;
   featured: boolean;
   discount: number;
+  highlights: string[];          
+  groupSize: string;          
+  difficulty: "Easy" | "Moderate" | "Hard"; 
+  availableDates: Date[];      
+  inclusions: string[];           
+  exclusions: string[];           
+  itinerary: string[];           
+  isCommunityTrip: boolean;      
 }
-
 
 const ProductSchema: Schema = new Schema(
   {
@@ -53,6 +39,15 @@ const ProductSchema: Schema = new Schema(
     image: { type: String, required: true },
     featured: { type: Boolean, default: false },
     discount: { type: Number, min: 0, max: 100, default: 0 },
+
+    highlights: { type: [String], default: [] },
+    groupSize: { type: String, default: "12-15" },
+    difficulty: { type: String, enum: ["Easy", "Moderate", "Hard"], default: "Moderate" },
+    availableDates: { type: [Date], default: [] },
+    inclusions: { type: [String], default: [] },
+    exclusions: { type: [String], default: [] },
+    itinerary: { type: [String], default: [] },
+    isCommunityTrip: { type: Boolean, default: true },
   },
   { timestamps: true }
 );

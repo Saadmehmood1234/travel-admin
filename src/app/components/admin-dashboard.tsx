@@ -8,6 +8,8 @@ import { Users, MapPin, Calendar, DollarSign, ArrowLeft } from "lucide-react"
 import DestinationsManager from "./destinations-manager"
 import BookingsManager from "./bookings-manager"
 import Link from "next/link"
+import { getProductsCount } from "@/actions/product.actions"
+import { getOrderStats } from "@/actions/order.actions"
 
 interface Stats {
   totalDestinations: number
@@ -23,43 +25,44 @@ export default function AdminDashboard() {
     totalRevenue: 0,
     pendingBookings: 0,
   })
-
+  const [countDestination,setCountDestination]=useState<number |undefined>()
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     fetchStats()
   }, [])
 
-  const fetchStats = async () => {
-    try {
-      setIsLoading(true)
-      const [destinationsRes, bookingsRes] = await Promise.all([
-        fetch("/api/destinations"),
-        fetch("/api/bookings")
-      ])
+const fetchStats = async () => {
+  try {
+    setIsLoading(true);
+    
+    // Get both product count and order stats
+    const [productsResult, orderStats] = await Promise.all([
+      getProductsCount(),
+      getOrderStats()
+    ]);
 
-      const destinations = await destinationsRes.json()
-      const bookings = await bookingsRes.json()
+    console.log("Products result:", productsResult);
+    console.log("Order stats:", orderStats);
 
-      const totalRevenue = bookings.reduce(
-        (sum: number, booking: any) => sum + (Number.parseFloat(booking.total_amount) || 0),
-        0,
-      )
-      const pendingBookings = bookings.filter((booking: any) => booking.status === "pending").length
-
+    // Check if both calls were successful
+    if (productsResult.success && !orderStats.error) {
       setStats({
-        totalDestinations: destinations.length,
-        totalBookings: bookings.length,
-        totalRevenue,
-        pendingBookings,
-      })
-    } catch (error) {
-      console.error("Error fetching stats:", error)
-    } finally {
-      setIsLoading(false)
+        totalDestinations: productsResult.count || 0,
+        totalBookings: orderStats.totalOrders || 0,
+        totalRevenue: orderStats.revenue || 0,
+        pendingBookings: orderStats.pendingOrders || 0,
+      });
+    } else {
+      console.error("Failed to fetch stats:", { productsResult, orderStats });
     }
+  } catch (error) {
+    console.error("Error fetching stats:", error);
+  } finally {
+    setIsLoading(false);
   }
-
+}
+console.log(stats)
   return (
     <div className="p-4 md:p-6 lg:p-8">
       {/* Header */}

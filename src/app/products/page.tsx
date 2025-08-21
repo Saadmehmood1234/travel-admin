@@ -113,23 +113,60 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DynamicPage from "../components/dynamic-page";
-import { getProducts } from "@/actions/product.actions";
+import { getProducts, deleteProduct } from "@/actions/product.actions";
+import { toast } from "react-hot-toast";
 
 const ProductLayout = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const fetchProducts = async () => {
+    try {
+      const res = await getProducts();
+      console.log(res.data);
+      setProducts(res.data || []); 
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await getProducts();
-        console.log(res.data); //  check API response shape
-        setProducts(res.data || []); // make sure res.data is an array
-      } catch (error) {
-        console.error("Error fetching products:", error);
-      }
-    };
-    getData();
+    fetchProducts();
   }, []);
+
+  const openDeleteModal = (id: string) => {
+    setProductToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+    setIsDeleting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await deleteProduct(productToDelete);
+
+      if (result.success) {
+        toast.success("Product deleted successfully");
+        fetchProducts(); // Refresh the product list
+        closeDeleteModal();
+      } else {
+        throw new Error(result.error || "Failed to delete product");
+      }
+    } catch (error) {
+      toast.error("Failed to delete product");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const contentTitleBarContent = {
     title: "Products",
@@ -244,7 +281,7 @@ const ProductLayout = () => {
                 Edit
               </button>
               <button
-                onClick={() => console.log("Delete product:", product)}
+                onClick={() => openDeleteModal(product._id)}
                 className="text-red-600 hover:underline"
               >
                 Delete
@@ -254,14 +291,44 @@ const ProductLayout = () => {
         },
       },
     ],
-    rows: products, // 👈 now using API data
+    rows: products,
   };
 
   return (
-    <DynamicPage
-      contentTitleBarContent={contentTitleBarContent}
-      tableContent={tableContent}
-    />
+    <>
+      <DynamicPage
+        contentTitleBarContent={contentTitleBarContent}
+        tableContent={tableContent}
+      />
+
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

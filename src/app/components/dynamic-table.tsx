@@ -40,7 +40,6 @@ export default function DynamicTable<TData, TValue>({
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([])
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
-
     const table = useReactTable({
         data,
         columns,
@@ -62,9 +61,7 @@ export default function DynamicTable<TData, TValue>({
 
     return (
         <div className="space-y-4">
-            {/* Top bar */}
             <div className="flex items-center justify-between gap-2">
-                {/* Search */}
                 <Input
                     placeholder="Search products..."
                     value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -73,8 +70,6 @@ export default function DynamicTable<TData, TValue>({
                     }
                     className="max-w-sm"
                 />
-
-                {/* Column toggle */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="outline" className="ml-auto cursor-pointer">
@@ -91,7 +86,7 @@ export default function DynamicTable<TData, TValue>({
                                     className="capitalize"
                                     checked={column.getIsVisible()}
                                     onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                                    onSelect={(e) => e.preventDefault()} // ✅ keeps dropdown open
+                                    onSelect={(e) => e.preventDefault()}
                                 >
                                     {column.id}
                                 </DropdownMenuCheckboxItem>
@@ -100,8 +95,6 @@ export default function DynamicTable<TData, TValue>({
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-
-            {/* Table */}
             <div className="overflow-hidden rounded-md border">
                 <Table>
                     <TableHeader>
@@ -141,8 +134,6 @@ export default function DynamicTable<TData, TValue>({
                     </TableBody>
                 </Table>
             </div>
-
-            {/* Pagination */}
             <div className="flex items-center justify-end space-x-2 py-2">
                 <Button
                     variant="outline"
