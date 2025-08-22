@@ -9,6 +9,7 @@ export default function AdminPage() {
           <div className="text-lg text-gray-600">Loading admin dashboard...</div>
         </div>
       }>
+        
         <AdminDashboard />
       </Suspense>
     </div>
