@@ -42,3 +42,65 @@ export const getUser = async (): Promise<{
     };
   }
 };
+
+export const deleteUser = async (userId: string): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    const result = await userModel.findByIdAndDelete(userId);
+    
+    if (!result) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "User deleted successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: "Failed to delete user",
+      error: error.message,
+    };
+  }
+};
+
+export const updateUserRole = async (userId: string, newRole: "user" | "admin"): Promise<{
+  success: boolean;
+  message?: string;
+  error?: string;
+}> => {
+  try {
+    await dbConnect();
+    const result = await userModel.findByIdAndUpdate(
+      userId,
+      { role: newRole },
+      { new: true }
+    );
+    
+    if (!result) {
+      return {
+        success: false,
+        message: "User not found",
+      };
+    }
+
+    return {
+      success: true,
+      message: "User role updated successfully",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: "Failed to update user role",
+      error: error.message,
+    };
+  }
+};

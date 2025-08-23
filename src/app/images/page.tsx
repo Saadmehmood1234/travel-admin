@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 type PixabayImage = {
   id: number;
@@ -11,9 +13,15 @@ type PixabayImage = {
 export default function Home() {
   const [images, setImages] = useState<PixabayImage[]>([]);
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState("travel"); // default search term
+  const [query, setQuery] = useState("travel"); 
   const [searchTerm, setSearchTerm] = useState("travel");
+    const router = useRouter();
+  const { data: session, status } = useSession();
 
+  if (!session) {
+    router.push("/auth/signin");
+    return;
+  }
   useEffect(() => {
     const fetchImages = async () => {
       const res = await fetch(

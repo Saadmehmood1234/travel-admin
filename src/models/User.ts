@@ -16,7 +16,6 @@ const userSchema = new Schema(
     emailVerified: { type: Boolean, default: false },
     verificationToken: { type: String },
     verificationTokenExpires: { type: Date }, 
-    hasClaimedCanva: { type: Boolean, default: false },
     role: { type: String, enum: ["user", "admin"], default: "user" },
     provider: { type: String, default: "credentials" },
   },
