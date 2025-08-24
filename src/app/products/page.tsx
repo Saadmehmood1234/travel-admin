@@ -377,7 +377,7 @@ const handleEdit = async (e: React.FormEvent) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price ($)
+                    Price (₹)
                   </label>
                   <input
                     type="number"
@@ -392,7 +392,7 @@ const handleEdit = async (e: React.FormEvent) => {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Original Price ($)
+                    Original Price (₹)
                   </label>
                   <input
                     type="number"

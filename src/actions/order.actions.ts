@@ -255,7 +255,7 @@ export async function sendOrderConfirmation(orderId: string) {
 
     // Format trips for email
     const tripsList = order.trips.map((trip:any) => 
-      `- ${trip.name} (${trip.location}): ${trip.quantity} traveler(s) at $${trip.price} each`
+      `- ${trip.name} (${trip.location}): ${trip.quantity} traveler(s) at ₹${trip.price} each`
     ).join('\n');
 
     // Email content
@@ -301,7 +301,7 @@ export async function sendOrderConfirmation(orderId: string) {
                       <strong>${trip.name}</strong> (${trip.location})<br>
                       Date: ₹{new Date(trip.selectedDate).toLocaleDateString()}<br>
                       Travelers: ${trip.quantity}<br>
-                      Price: $${trip.price} each
+                      Price: ₹${trip.price} each
                     </li>
                   `).join('')}
                 </ul>
@@ -340,7 +340,7 @@ export async function sendOrderConfirmation(orderId: string) {
            Price: ₹${trip.price} each\n`
         ).join('')}
         
-        Total Amount: $${order.totalAmount}
+        Total Amount: ₹${order.totalAmount}
         
         If you have any questions, please contact our support team.
         
@@ -374,7 +374,7 @@ export async function getOrderStats() {
     const completedOrders = await Order.countDocuments({ status: "completed" });
     const totalRevenue = await Order.aggregate([
       { $match: { paymentStatus: "paid" } },
-      { $group: { _id: null, total: { $sum: "$totalAmount" } } }
+      { $group: { _id: null, total: { $sum: "₹totalAmount" } } }
     ]);
     
     const revenue = totalRevenue.length > 0 ? totalRevenue[0].total : 0;

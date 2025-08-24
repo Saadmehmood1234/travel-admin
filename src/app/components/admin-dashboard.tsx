@@ -115,7 +115,7 @@ console.log(stats)
               {isLoading ? (
                 <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
               ) : (
-                `$${stats.totalRevenue.toLocaleString()}`
+                `₹${stats.totalRevenue.toLocaleString()}`
               )}
             </div>
           </CardContent>

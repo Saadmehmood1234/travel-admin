@@ -129,7 +129,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="originalPrice">Original Price ($)*</Label>
+            <Label htmlFor="originalPrice">Original Price (₹)*</Label>
             <Input
               id="originalPrice"
               name="originalPrice"
@@ -143,7 +143,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="price">Discounted Price ($)*</Label>
+            <Label htmlFor="price">Discounted Price (₹)*</Label>
             <Input
               id="price"
               name="price"
