@@ -146,11 +146,11 @@ console.log(stats)
         </TabsList>
 
         <TabsContent value="destinations" className="mt-4">
-          <DestinationsManager onUpdate={fetchStats} />
+          <DestinationsManager />
         </TabsContent>
 
         <TabsContent value="bookings" className="mt-4">
-          <BookingsManager onUpdate={fetchStats} />
+          <BookingsManager/>
         </TabsContent>
       </Tabs>
     </div>

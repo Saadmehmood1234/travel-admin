@@ -1,310 +1,500 @@
-"use client"
+"use client";
+import React, { useEffect, useState } from "react";
+import DynamicPage from "../components/dynamic-page";
+import { getProducts, deleteProduct, updateProduct } from "@/actions/product.actions";
+import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
-import type React from "react"
-
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
-import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Plus, Edit, Trash2, Star } from "lucide-react"
-import toast from "react-hot-toast"
-
-interface Destination {
-  id: number
-  name: string
-  description: string
-  price: number
-  image_url: string
-  location: string
-  duration: string
-  rating: number
-  featured: boolean
-}
-
-interface DestinationsManagerProps {
-  onUpdate: () => void
-}
-
-export default function DestinationsManager({ onUpdate }: DestinationsManagerProps) {
-  const [destinations, setDestinations] = useState<Destination[]>([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingDestination, setEditingDestination] = useState<Destination | null>(null)
+const ProductLayout = () => {
+  const [products, setProducts] = useState<any[]>([]);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [productToEdit, setProductToEdit] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    description: "",
-    price: "",
-    image_url: "",
     location: "",
-    duration: "",
+    category: "",
+    price: "",
+    originalPrice: "",
+    discount: "",
     rating: "",
+    reviews: "",
     featured: false,
-  })
+    description: ""
+  });
+  
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  
+  if (!session) {
+    router.push("/auth/signin");
+    return;
+  }
 
+  const fetchProducts = async () => {
+    try {
+      const res = await getProducts();
+      console.log(res.data);
+      setProducts(res.data || []); 
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    }
+  };
 
   useEffect(() => {
-    fetchDestinations()
-  }, [])
+    fetchProducts();
+  }, []);
 
-  const fetchDestinations = async () => {
-    try {
-      const response = await fetch("/api/destinations")
-      const data = await response.json()
-      setDestinations(data)
-    } catch (error) {
-      toast.error("Failed to fetch destinations")
-    }
-  }
+  const openDeleteModal = (id: string) => {
+    setProductToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setProductToDelete(null);
+    setIsDeleting(false);
+  };
 
-    try {
-      const url = editingDestination ? `/api/destinations/${editingDestination.id}` : "/api/destinations"
-
-      const method = editingDestination ? "PUT" : "POST"
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          price: Number.parseFloat(formData.price),
-          rating: Number.parseFloat(formData.rating),
-        }),
-      })
-
-      if (response.ok) {
-        toast.success(`Destination ${editingDestination ? "updated" : "created"} successfully`)
-        fetchDestinations()
-        onUpdate()
-        resetForm()
-        setIsDialogOpen(false)
-      } else {
-        throw new Error("Failed to save destination")
-      }
-    } catch (error) {
-      toast.error("Failed to save destination")
-    }
-  }
-
-  const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this destination?")) return
-
-    try {
-      const response = await fetch(`/api/destinations/${id}`, {
-        method: "DELETE",
-      })
-
-      if (response.ok) {
-        toast.success("Destination deleted successfully")
-        fetchDestinations()
-        onUpdate()
-      } else {
-        throw new Error("Failed to delete destination")
-      }
-    } catch (error) {
-      toast.error("Failed to delete destination")
-    }
-  }
-
-  const handleEdit = (destination: Destination) => {
-    setEditingDestination(destination)
+  const openEditModal = (product: any) => {
+    setProductToEdit(product);
     setFormData({
-      name: destination.name,
-      description: destination.description,
-      price: destination.price.toString(),
-      image_url: destination.image_url,
-      location: destination.location,
-      duration: destination.duration,
-      rating: destination.rating.toString(),
-      featured: destination.featured,
-    })
-    setIsDialogOpen(true)
-  }
+      name: product.name || "",
+      location: product.location || "",
+      category: product.category || "",
+      price: product.price?.toString() || "",
+      originalPrice: product.originalPrice?.toString() || "",
+      discount: product.discount?.toString() || "",
+      rating: product.rating?.toString() || "",
+      reviews: product.reviews?.toString() || "0",
+      featured: product.featured || false,
+      description: product.description || ""
+    });
+    setIsEditModalOpen(true);
+  };
 
-  const resetForm = () => {
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setProductToEdit(null);
+    setIsEditing(false);
     setFormData({
       name: "",
-      description: "",
-      price: "",
-      image_url: "",
       location: "",
-      duration: "",
+      category: "",
+      price: "",
+      originalPrice: "",
+      discount: "",
       rating: "",
+      reviews: "",
       featured: false,
-    })
-    setEditingDestination(null)
+      description: ""
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+    }));
+  };
+
+  const handleDelete = async () => {
+    if (!productToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const result = await deleteProduct(productToDelete);
+
+      if (result.success) {
+        toast.success("Product deleted successfully");
+        fetchProducts(); // Refresh the product list
+        closeDeleteModal();
+      } else {
+        throw new Error(result.error || "Failed to delete product");
+      }
+    } catch (error) {
+      toast.error("Failed to delete product");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+const handleEdit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!productToEdit) return;
+  
+  setIsEditing(true);
+  try {
+    // Validate category
+    const validCategories = ["Beach", "Adventure", "Luxury", "Family-Friendly"] as const;
+    const category = validCategories.includes(formData.category as any) 
+      ? formData.category as "Beach" | "Adventure" | "Luxury" | "Family-Friendly"
+      : undefined;
+
+    const updatedData = {
+      ...formData,
+      price: parseFloat(formData.price),
+      originalPrice: formData.originalPrice ? parseFloat(formData.originalPrice) : undefined,
+      discount: formData.discount ? parseFloat(formData.discount) : undefined,
+      rating: formData.rating ? parseFloat(formData.rating) : undefined,
+      reviews: parseInt(formData.reviews) || 0,
+      featured: formData.featured,
+      category: category // Use the validated category
+    };
+
+    const result = await updateProduct(productToEdit._id, updatedData);
+
+    if (result.success) {
+      toast.success("Product updated successfully");
+      fetchProducts(); // Refresh the product list
+      closeEditModal();
+    } else {
+      throw new Error(result.error || "Failed to update product");
+    }
+  } catch (error) {
+    toast.error("Failed to update product");
+  } finally {
+    setIsEditing(false);
   }
+};
+
+  const contentTitleBarContent = {
+    title: "Products",
+    subTitle: "Manage all travel packages in your store",
+    buttons: [
+      {
+        text: "Add Product",
+        color: "#fff",
+        bgColor: "#2563eb",
+      },
+    ],
+  };
+
+  const tableContent = {
+    columns: [
+      { accessorKey: "name", header: "Package Name" },
+      { accessorKey: "location", header: "Location" },
+      {
+        accessorKey: "category",
+        header: "Category",
+        cell: ({ row }: any) => {
+          const category = row.getValue("category");
+          const categoryColors: Record<string, string> = {
+            Beach: "bg-blue-100 text-blue-800",
+            Adventure: "bg-green-100 text-green-800",
+            Luxury: "bg-purple-100 text-purple-800",
+            "Family-Friendly": "bg-yellow-100 text-yellow-800",
+          };
+          return (
+            <span
+              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                categoryColors[category] || "bg-gray-100 text-gray-800"
+              }`}
+            >
+              {category}
+            </span>
+          );
+        },
+      },
+      {
+        accessorKey: "price",
+        header: "Price",
+        cell: ({ row }: any) => {
+          const price = parseFloat(row.getValue("price"));
+          const originalPrice = parseFloat(row.original.originalPrice || price);
+          const discount = row.original.discount || 0;
+
+          const formattedPrice = new Intl.NumberFormat("en-US", {
+            style: "currency",
+            currency: "USD",
+          }).format(price);
+
+          return (
+            <div className="text-right">
+              {discount > 0 && (
+                <span className="line-through text-gray-400 mr-2">
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  }).format(originalPrice)}
+                </span>
+              )}
+              <span className="font-medium">{formattedPrice}</span>
+              {discount > 0 && (
+                <span className="ml-2 text-red-500 text-xs font-semibold">
+                  {discount}% OFF
+                </span>
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "rating",
+        header: "Rating",
+        cell: ({ row }: any) => {
+          const rating = parseFloat(row.getValue("rating") || 0);
+          return (
+            <div className="flex items-center">
+              <span className="mr-1 font-medium">{rating.toFixed(1)}</span>
+              <span className="text-yellow-400">★</span>
+              <span className="text-gray-400 text-xs ml-1">
+                ({row.original.reviews || 0} reviews)
+              </span>
+            </div>
+          );
+        },
+      },
+      {
+        accessorKey: "featured",
+        header: "Featured",
+        cell: ({ row }: any) => {
+          const featured: boolean = row.getValue("featured");
+          return featured ? (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              Featured
+            </span>
+          ) : null;
+        },
+      },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }: any) => {
+          const product = row.original;
+          return (
+            <div className="flex space-x-2">
+              <button
+                onClick={() => openEditModal(product)}
+                className="text-blue-600 hover:underline"
+              >
+                Edit
+              </button>
+              <button
+                onClick={() => openDeleteModal(product._id)}
+                className="text-red-600 hover:underline"
+              >
+                Delete
+              </button>
+            </div>
+          );
+        },
+      },
+    ],
+    rows: products,
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>Destinations Management</CardTitle>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button onClick={resetForm}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Destination
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingDestination ? "Edit Destination" : "Add New Destination"}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="location">Location</Label>
-                    <Input
-                      id="location"
-                      value={formData.location}
-                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
+    <>
+      <DynamicPage
+        contentTitleBarContent={contentTitleBarContent}
+        tableContent={tableContent}
+      />
 
+      {/* Delete Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this product? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={closeDeleteModal}
+                disabled={isDeleting}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50"
+              >
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {isEditModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">Edit Product</h3>
+            <form onSubmit={handleEdit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Package Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <Label htmlFor="price">Price ($)</Label>
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="duration">Duration</Label>
-                    <Input
-                      id="duration"
-                      value={formData.duration}
-                      onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="rating">Rating</Label>
-                    <Input
-                      id="rating"
-                      type="number"
-                      step="0.1"
-                      min="0"
-                      max="5"
-                      value={formData.rating}
-                      onChange={(e) => setFormData({ ...formData, rating: e.target.value })}
-                      required
-                    />
-                  </div>
-                </div>
-
                 <div>
-                  <Label htmlFor="image_url">Image URL</Label>
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="/placeholder.svg?height=400&width=600"
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
                   />
                 </div>
-
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    id="featured"
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Category
+                  </label>
+                  <select
+                    name="category"
+                    value={formData.category}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    <option value="Beach">Beach</option>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Luxury">Luxury</option>
+                    <option value="Family-Friendly">Family-Friendly</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Original Price ($)
+                  </label>
+                  <input
+                    type="number"
+                    name="originalPrice"
+                    value={formData.originalPrice}
+                    onChange={handleInputChange}
+                    step="0.01"
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Discount (%)
+                  </label>
+                  <input
+                    type="number"
+                    name="discount"
+                    value={formData.discount}
+                    onChange={handleInputChange}
+                    step="0.1"
+                    min="0"
+                    max="100"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rating
+                  </label>
+                  <input
+                    type="number"
+                    name="rating"
+                    value={formData.rating}
+                    onChange={handleInputChange}
+                    step="0.1"
+                    min="0"
+                    max="5"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Reviews Count
+                  </label>
+                  <input
+                    type="number"
+                    name="reviews"
+                    value={formData.reviews}
+                    onChange={handleInputChange}
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="featured"
                     checked={formData.featured}
-                    onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })}
+                    onChange={handleInputChange}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                   />
-                  <Label htmlFor="featured">Featured Destination</Label>
+                  <label className="ml-2 block text-sm text-gray-700">
+                    Featured Product
+                  </label>
                 </div>
-
-                <div className="flex justify-end space-x-2">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
-                    Cancel
-                  </Button>
-                  <Button type="submit">{editingDestination ? "Update" : "Create"}</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={closeEditModal}
+                  disabled={isEditing}
+                  className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditing}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {isEditing ? "Updating..." : "Update Product"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Duration</TableHead>
-              <TableHead>Rating</TableHead>
-              <TableHead>Featured</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {destinations.map((destination) => (
-              <TableRow key={destination.id}>
-                <TableCell className="font-medium">{destination.name}</TableCell>
-                <TableCell>{destination.location}</TableCell>
-                <TableCell>${destination.price}</TableCell>
-                <TableCell>{destination.duration}</TableCell>
-                <TableCell>
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                    {destination.rating}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  {destination.featured ? (
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Featured</span>
-                  ) : (
-                    <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">Regular</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button size="sm" variant="outline" onClick={() => handleEdit(destination)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => handleDelete(destination.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
-  )
-}
+      )}  
+    </>
+  );
+};
+
+export default ProductLayout;

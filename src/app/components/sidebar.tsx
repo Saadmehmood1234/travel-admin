@@ -38,9 +38,8 @@ export function Sidebar() {
     { label: "Orders", icon: ShoppingCart, href: "/orders" },
     { label: "Images", icon: Images, href: "/images" },
     { label: "Subscribers", icon: Mail, href: "/subscriber" },
+    { label: "Contact ", icon: MessageSquare, href: "/contact" },
     { label: "Payments", icon: CreditCard, href: "/payments" },
-    { label: "Contact Forms", icon: MessageSquare, href: "/contact" },
-    { label: "Settings", icon: Settings, href: "/settings" },
   ];
 
   return (

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -14,7 +13,6 @@ import {
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import { createProduct } from "@/actions/product.actions";
-
 export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -61,7 +59,6 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
       [type]: [...prev[type], value.trim()]
     }));
     
-    // Clear the input field
     if (type === "highlights") setHighlightInput("");
     if (type === "inclusions") setInclusionInput("");
     if (type === "exclusions") setExclusionInput("");
@@ -81,13 +78,11 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
     setLoading(true);
 
     try {
-      // Calculate discount percentage if original price is provided
       const finalData = {
         ...formData,
         discount: formData.originalPrice > 0
           ? Math.round(((formData.originalPrice - formData.price) / formData.originalPrice) * 100)
           : 0,
-        // Convert date strings to Date objects
         availableDates: formData.availableDates.map(date => new Date(date))
       };
 
