@@ -114,21 +114,21 @@ export default function SignUpPage() {
         </form>
 
         {/* Divider */}
-        <div className="w-full flex items-center space-x-4">
+        {/* <div className="w-full flex items-center space-x-4">
           <div className="flex-1 h-px bg-gray-300" />
           <span className="text-gray-600 text-sm">OR</span>
           <div className="flex-1 h-px bg-gray-300" />
-        </div>
+        </div> */}
 
         {/* Google sign-up */}
-        <motion.button
+        {/* <motion.button
           whileHover={{ scale: 1.05 }}
           onClick={() => signIn("google", { callbackUrl: "/" })}
           className="w-full flex items-center justify-center space-x-2 bg-white border border-gray-300 text-gray-900 py-4 rounded shadow-sm transition-all hover:bg-gray-50"
         >
           <FaGoogle className="text-xl" />
           <span>Sign up with Google</span>
-        </motion.button>
+        </motion.button> */}
 
         {/* Redirect to Sign In */}
         <p className="text-gray-600 text-center">
