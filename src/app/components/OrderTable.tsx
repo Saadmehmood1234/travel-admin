@@ -1,6 +1,4 @@
-// app/components/orders/order-table.tsx
 "use client";
-
 import { useState } from "react";
 import {
   Table,
@@ -25,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Mail, Eye, Download } from "lucide-react";
+import { MoreHorizontal, Mail, Eye, Download, CreditCard } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,7 +32,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { IOrder } from "@/models/order.model";
-import { updateOrderStatus, sendOrderConfirmation } from "@/actions/order.actions"
+import { updateOrderStatus, sendOrderConfirmation, updatePaymentStatus } from "@/actions/order.actions"
 
 interface OrderTableProps {
   orders: IOrder[];
@@ -47,6 +45,7 @@ type BadgeVariant = "default" | "secondary" | "destructive" | "outline";
 export default function OrderTable({ orders, isAdmin = false }: OrderTableProps) {
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
+  const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
@@ -57,10 +56,22 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
     }
   };
 
+  const handlePaymentStatusChange = async (orderId: string, newPaymentStatus: string) => {
+    try {
+      setUpdatingPayment(orderId);
+      await updatePaymentStatus(orderId, newPaymentStatus);
+      // You might want to add a toast notification here
+    } catch (error) {
+      console.error("Failed to update payment status:", error);
+    } finally {
+      setUpdatingPayment(null);
+    }
+  };
+
   const handleSendConfirmation = async (orderId: string) => {
     try {
       await sendOrderConfirmation(orderId);
-      // You might want to add a toast notification here
+      
     } catch (error) {
       console.error("Failed to send confirmation:", error);
     }
@@ -71,7 +82,7 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
       case "confirmed":
         return "default";
       case "completed":
-        return "secondary"; // Using "secondary" instead of "success"
+        return "secondary";
       case "pending":
         return "secondary";
       case "cancelled":
@@ -84,10 +95,14 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
   const getPaymentStatusBadgeVariant = (status: string): BadgeVariant => {
     switch (status) {
       case "paid":
-        return "default"; // Using "default" instead of "success"
+        return "default";
       case "refunded":
         return "secondary";
       case "unpaid":
+        return "destructive";
+      case "pending":
+        return "secondary";
+      case "failed":
         return "destructive";
       default:
         return "outline";
@@ -109,13 +124,11 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
     }).format(amount);
   };
 
-  // Safe function to get order ID
   const getOrderId = (order: IOrder | null): string => {
     if (!order || !order._id) return "";
     return typeof order._id === "string" ? order._id : order._id.toString();
   };
 
-  // Safe function to get short order ID for display
   const getShortOrderId = (order: IOrder | null): string => {
     const id = getOrderId(order);
     return id ? `#${id.slice(-6)}` : "";
@@ -181,9 +194,30 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                   )}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus)}>
-                    {order.paymentStatus}
-                  </Badge>
+                  {isAdmin ? (
+                    <Select
+                      defaultValue={order.paymentStatus}
+                      onValueChange={(value) =>
+                        handlePaymentStatusChange(getOrderId(order), value)
+                      }
+                      disabled={updatingPayment === getOrderId(order)}
+                    >
+                      <SelectTrigger className="w-32">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="unpaid">Unpaid</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="paid">Paid</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
+                        <SelectItem value="refunded">Refunded</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <Badge variant={getPaymentStatusBadgeVariant(order.paymentStatus)}>
+                      {order.paymentStatus}
+                    </Badge>
+                  )}
                 </TableCell>
                 {isAdmin && (
                   <TableCell>
@@ -204,7 +238,7 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                           <Eye className="mr-2 h-4 w-4" />
                           View details
                         </DropdownMenuItem>
-                        <DropdownMenuItem
+                        {/* <DropdownMenuItem
                           onClick={() => handleSendConfirmation(getOrderId(order))}
                         >
                           <Mail className="mr-2 h-4 w-4" />
@@ -213,7 +247,7 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                         <DropdownMenuItem>
                           <Download className="mr-2 h-4 w-4" />
                           Download invoice
-                        </DropdownMenuItem>
+                        </DropdownMenuItem> */}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -260,12 +294,33 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                     </Badge>
                   </p>
                   <p>Payment: 
-                    <Badge 
-                      variant={getPaymentStatusBadgeVariant(selectedOrder.paymentStatus)} 
-                      className="ml-2"
-                    >
-                      {selectedOrder.paymentStatus}
-                    </Badge>
+                    {isAdmin ? (
+                      <Select
+                        defaultValue={selectedOrder.paymentStatus}
+                        onValueChange={(value) =>
+                          handlePaymentStatusChange(getOrderId(selectedOrder), value)
+                        }
+                        disabled={updatingPayment === getOrderId(selectedOrder)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unpaid">Unpaid</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="paid">Paid</SelectItem>
+                          <SelectItem value="failed">Failed</SelectItem>
+                          <SelectItem value="refunded">Refunded</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <Badge 
+                        variant={getPaymentStatusBadgeVariant(selectedOrder.paymentStatus)} 
+                        className="ml-2"
+                      >
+                        {selectedOrder.paymentStatus}
+                      </Badge>
+                    )}
                   </p>
                   <p>Payment Method: {selectedOrder.paymentMethod}</p>
                 </div>

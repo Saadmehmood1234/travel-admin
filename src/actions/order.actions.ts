@@ -231,39 +231,139 @@ export async function deleteOrder(orderId: string) {
   }
 }
 
-// Send order confirmation email
+// actions/order.actions.ts
+import nodemailer from 'nodemailer';
+
 export async function sendOrderConfirmation(orderId: string) {
   await dbConnect();
   
   try {
-    const order = await Order.findById(orderId)
-    console.log(order)
+    const order = await Order.findById(orderId);
     
     if (!order) {
       return { error: "Order not found" };
     }
     
-    // In a real application, you would integrate with an email service
-    // like Resend, SendGrid, or Nodemailer here
-    console.log("Sending confirmation email for order:", orderId);
-    console.log("To:", order.contactInfo.email);
-    console.log("Order details:", {
-      orderId: order._id,
-      customer: order.contactInfo.name,
-      trips: order.trips,
-      totalAmount: order.totalAmount
+    // Create transporter - FIXED: createTransport instead of createTransporter
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.SMTP_EMAIL,
+        pass: process.env.SMTP_PASSWORD,
+      },
     });
+
+    // Format trips for email
+    const tripsList = order.trips.map((trip:any) => 
+      `- ${trip.name} (${trip.location}): ${trip.quantity} traveler(s) at $${trip.price} each`
+    ).join('\n');
+
+    // Email content
+    const mailOptions = {
+      from: process.env.SMTP_EMAIL,
+      to: order.contactInfo.email,
+      subject: `Order Confirmation - #${order._id.toString().slice(-6)}`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: #0070f3; color: white; padding: 20px; text-align: center; }
+            .content { background: #f9f9f9; padding: 20px; }
+            .footer { background: #eee; padding: 10px; text-align: center; font-size: 12px; }
+            .order-details { margin: 20px 0; }
+            .total { font-size: 18px; font-weight: bold; margin-top: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>Cloudship Holidays</h1>
+              <h2>Order Confirmation</h2>
+            </div>
+            
+            <div class="content">
+              <p>Dear ${order.contactInfo.name},</p>
+              <p>Thank you for your order! Here are your order details:</p>
+              
+              <div class="order-details">
+                <h3>Order #${order._id.toString().slice(-6)}</h3>
+                <p><strong>Order Date:</strong> ${new Date(order.bookingDate).toLocaleDateString()}</p>
+                <p><strong>Status:</strong> ${order.status}</p>
+                <p><strong>Payment Status:</strong> ${order.paymentStatus}</p>
+                
+                <h4>Trips:</h4>
+                <ul>
+                  ${order.trips.map((trip:any) => `
+                    <li>
+                      <strong>${trip.name}</strong> (${trip.location})<br>
+                      Date: ₹{new Date(trip.selectedDate).toLocaleDateString()}<br>
+                      Travelers: ${trip.quantity}<br>
+                      Price: $${trip.price} each
+                    </li>
+                  `).join('')}
+                </ul>
+                
+                <p class="total">Total Amount: ₹${order.totalAmount}</p>
+              </div>
+              
+              <p>If you have any questions, please contact our support team.</p>
+              <p>Best regards,<br>Cloudship Holidays Team</p>
+            </div>
+            
+            <div class="footer">
+              <p>© 2024 Cloudship Holidays. All rights reserved.</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `,
+      text: `
+        Order Confirmation - #${order._id.toString().slice(-6)}
+        
+        Dear ${order.contactInfo.name},
+        
+        Thank you for your order! Here are your order details:
+        
+        Order #${order._id.toString().slice(-6)}
+        Order Date: ${new Date(order.bookingDate).toLocaleDateString()}
+        Status: ${order.status}
+        Payment Status: ${order.paymentStatus}
+        
+        Trips:
+        ${order.trips.map((trip:any) => 
+          `- ${trip.name} (${trip.location})
+           Date: ${new Date(trip.selectedDate).toLocaleDateString()}
+           Travelers: ${trip.quantity}
+           Price: ₹${trip.price} each\n`
+        ).join('')}
+        
+        Total Amount: $${order.totalAmount}
+        
+        If you have any questions, please contact our support team.
+        
+        Best regards,
+        Cloudship Holidays Team
+      `
+    };
+
+    // Send email
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent:", info.messageId);
+
+    return { 
+      success: true, 
+      message: "Confirmation email sent successfully",
+      messageId: info.messageId
+    };
     
-    // Simulate email sending
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    return { success: true, message: "Confirmation email sent successfully" };
   } catch (error) {
     console.error("Send confirmation error:", error);
     return { error: "Failed to send confirmation email" };
   }
 }
-
 // Get order statistics
 export async function getOrderStats() {
   await dbConnect();
@@ -290,3 +390,5 @@ export async function getOrderStats() {
     return { error: "Failed to fetch order statistics" };
   }
 }
+
+
