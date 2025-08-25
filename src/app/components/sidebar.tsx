@@ -19,6 +19,7 @@ import {
   MessageSquare,
   Mail,
   User,
+  TicketPercent,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import SignOutButton from "./SignOutButton";
@@ -31,16 +32,19 @@ export function Sidebar() {
     return null;
   }
 
-  const navItems = [
-    { label: "Dashboard", icon: BarChart3, href: "/" },
-    { label: "Users", icon: Users, href: "/users" },
-    { label: "Products", icon: Package, href: "/products" },
-    { label: "Orders", icon: ShoppingCart, href: "/orders" },
-    { label: "Images", icon: Images, href: "/images" },
-    { label: "Subscribers", icon: Mail, href: "/subscriber" },
-    { label: "Contact ", icon: MessageSquare, href: "/contact" },
-    { label: "Payments", icon: CreditCard, href: "/payments" },
-  ];
+
+const navItems = [
+  { label: "Dashboard", icon: BarChart3, href: "/" },
+  { label: "Users", icon: Users, href: "/users" },
+  { label: "Products", icon: Package, href: "/products" },
+  { label: "Orders", icon: ShoppingCart, href: "/orders" },
+  { label: "Images", icon: Images, href: "/images" },
+  { label: "Subscribers", icon: Mail, href: "/subscriber" },
+  { label: "Contact", icon: MessageSquare, href: "/contact" },
+  { label: "Offer", icon: TicketPercent, href: "/offer" },
+  { label: "Payments", icon: CreditCard, href: "/payments" },
+];
+
 
   return (
     <>

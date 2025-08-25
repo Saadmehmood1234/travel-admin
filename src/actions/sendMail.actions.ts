@@ -43,7 +43,7 @@ export async function resendVerificationEmail(email: string) {
     });
 
     await transporter.sendMail({
-      from: `"WanderLust" <${process.env.SMTP_EMAIL}>`,
+      from: `"Cloudship Holidays" <${process.env.SMTP_EMAIL}>`,
       to: email,
       subject: "Verify your email address",
       html: `
