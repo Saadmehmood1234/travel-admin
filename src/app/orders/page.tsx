@@ -5,7 +5,7 @@ import { getAllOrders } from "@/actions/order.actions";
 import OrderTable from "../components/OrderTable";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { IOrder } from "@/models/order.model"; // Import from your model file
+import { IOrder } from "@/models/order.model"; 
 
 interface OrdersResponse {
   orders: IOrder[];
@@ -23,7 +23,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "loading") return; // Wait for session to load
+    if (status === "loading") return; 
 
     if (!session) {
       router.push("/auth/signin");
@@ -34,8 +34,7 @@ export default function OrdersPage() {
       try {
         setLoading(true);
         const data = await getAllOrders();
-        
-        // Ensure the data structure matches what we expect
+
         if (data && typeof data === 'object') {
           setOrdersData({
             orders: data.orders || [],

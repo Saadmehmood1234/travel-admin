@@ -155,8 +155,6 @@ export const createProduct = async (
   }
 };
 
-// Utility function to serialize product for frontend
-
 
 export const updateProduct = async (
   id: string,

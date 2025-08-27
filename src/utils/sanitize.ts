@@ -1,4 +1,3 @@
-// utils/sanitize.ts
 import mongoose from "mongoose";
 
 interface SanitizedProduct {

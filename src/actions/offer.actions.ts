@@ -22,7 +22,6 @@ export interface SerializedOffer {
 }
 
 const serializeOffer = (offer: IOffer): SerializedOffer => {
-  // Convert to plain object first, then manually serialize each field
   const plainOffer = offer.toObject ? offer.toObject() : offer;
   
   return {

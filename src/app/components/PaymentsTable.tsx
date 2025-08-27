@@ -103,7 +103,6 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
 
   return (
     <div className="overflow-hidden">
-      {/* Filters and Search */}
       <div className="flex flex-col sm:flex-row gap-4 mb-6 items-center justify-between">
         <div className="flex flex-col sm:flex-row gap-4 flex-1">
           <div className="relative flex-1 max-w-md">
@@ -142,7 +141,6 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
         </button>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -207,7 +205,6 @@ export default function PaymentsTable({ payments }: PaymentsTableProps) {
         </table>
       </div>
 
-      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-between mt-6 px-6 py-3 bg-gray-50 border-t border-gray-200">
           <div className="text-sm text-gray-700">

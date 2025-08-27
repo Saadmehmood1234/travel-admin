@@ -18,7 +18,7 @@ export default function Providers({
         toastOptions={{
           style: {
             background:
-              "linear-gradient(135deg, rgba(59,130,246,0.9), rgba(168,85,247,0.9))", // from-primary-400 to-secondary-400
+              "linear-gradient(135deg, rgba(59,130,246,0.9), rgba(168,85,247,0.9))", 
             color: "#fff",
             border: "1px solid rgba(255, 255, 255, 0.2)",
             borderRadius: "1rem",
@@ -30,21 +30,21 @@ export default function Providers({
           success: {
             duration: 3000,
             iconTheme: {
-              primary: "#38bdf8", // primary-300
+              primary: "#38bdf8", 
               secondary: "#fff",
             },
           },
           error: {
             style: {
               background:
-                "linear-gradient(135deg, rgba(239,68,68,0.9), rgba(220,38,38,0.9))", // red gradient
+                "linear-gradient(135deg, rgba(239,68,68,0.9), rgba(220,38,38,0.9))", 
               border: "1px solid rgba(255, 255, 255, 0.2)",
             },
             iconTheme: { primary: "#ef4444", secondary: "#fff" },
           },
           loading: {
             duration: Infinity,
-            iconTheme: { primary: "#facc15", secondary: "#fff" }, // yellow
+            iconTheme: { primary: "#facc15", secondary: "#fff" },
           },
         }}
       />

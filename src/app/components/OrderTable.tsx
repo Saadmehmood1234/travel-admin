@@ -23,7 +23,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Mail, Eye, Download, CreditCard } from "lucide-react";
+import { MoreHorizontal, Mail, Eye, Download, CreditCard, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,7 +32,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { IOrder } from "@/models/order.model";
-import { updateOrderStatus, sendOrderConfirmation, updatePaymentStatus } from "@/actions/order.actions"
+import { updateOrderStatus, sendOrderConfirmation, updatePaymentStatus } from "@/actions/order.actions";
+import { deleteOrder } from "@/actions/order.actions"; // Import the delete function
 
 interface OrderTableProps {
   orders: IOrder[];
@@ -46,11 +47,13 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
   const [selectedOrder, setSelectedOrder] = useState<IOrder | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const [updatingPayment, setUpdatingPayment] = useState<string | null>(null);
+  const [deletingOrder, setDeletingOrder] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const handleStatusChange = async (orderId: string, newStatus: string) => {
     try {
       await updateOrderStatus(orderId, newStatus);
-      // You might want to add a toast notification here
     } catch (error) {
       console.error("Failed to update order status:", error);
     }
@@ -60,7 +63,6 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
     try {
       setUpdatingPayment(orderId);
       await updatePaymentStatus(orderId, newPaymentStatus);
-      // You might want to add a toast notification here
     } catch (error) {
       console.error("Failed to update payment status:", error);
     } finally {
@@ -71,10 +73,32 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
   const handleSendConfirmation = async (orderId: string) => {
     try {
       await sendOrderConfirmation(orderId);
-      
     } catch (error) {
       console.error("Failed to send confirmation:", error);
     }
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    try {
+      setDeletingOrder(orderId);
+      const result = await deleteOrder(orderId);
+      
+      if (result.error) {
+        console.error("Failed to delete order:", result.error);
+      } else {
+        setDeleteConfirmOpen(false);
+        setOrderToDelete(null);
+      }
+    } catch (error) {
+      console.error("Failed to delete order:", error);
+    } finally {
+      setDeletingOrder(null);
+    }
+  };
+
+  const confirmDelete = (orderId: string) => {
+    setOrderToDelete(orderId);
+    setDeleteConfirmOpen(true);
   };
 
   const getStatusBadgeVariant = (status: string): BadgeVariant => {
@@ -120,7 +144,7 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
-      currency: "USD",
+      currency: "INR",
     }).format(amount);
   };
 
@@ -238,16 +262,19 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                           <Eye className="mr-2 h-4 w-4" />
                           View details
                         </DropdownMenuItem>
-                        {/* <DropdownMenuItem
+                        <DropdownMenuItem
                           onClick={() => handleSendConfirmation(getOrderId(order))}
                         >
                           <Mail className="mr-2 h-4 w-4" />
                           Send confirmation
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Download className="mr-2 h-4 w-4" />
-                          Download invoice
-                        </DropdownMenuItem> */}
+                        <DropdownMenuItem
+                          onClick={() => confirmDelete(getOrderId(order))}
+                          className="text-red-600 focus:text-red-600"
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete order
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -258,6 +285,7 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
         </Table>
       </div>
 
+      {/* Order Details Dialog */}
       <Dialog open={detailDialogOpen} onOpenChange={setDetailDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -382,9 +410,43 @@ export default function OrderTable({ orders, isAdmin = false }: OrderTableProps)
                   <Mail className="mr-2 h-4 w-4" />
                   Send Confirmation
                 </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => confirmDelete(getOrderId(selectedOrder))}
+                >
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Delete Order
+                </Button>
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this order? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-end gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deletingOrder !== null}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => orderToDelete && handleDeleteOrder(orderToDelete)}
+              disabled={deletingOrder !== null}
+            >
+              {deletingOrder ? "Deleting..." : "Delete Order"}
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

@@ -1,4 +1,3 @@
-// app/admin/contacts/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -189,8 +188,6 @@ export default function ContactSubmissionsPage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Details Dialog */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>

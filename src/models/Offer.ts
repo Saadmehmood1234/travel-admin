@@ -9,8 +9,8 @@ export interface IOffer extends Document {
   validUntil: Date;
   code: string;
   type: 'percentage' | 'fixed';
-  icon: string; // Store icon name as string
-  color: string; // Gradient color classes
+  icon: string; 
+  color: string; 
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -74,7 +74,6 @@ const OfferSchema = new Schema<IOffer>(
   }
 );
 
-// Index for active offers and validity
 OfferSchema.index({ isActive: 1, validUntil: 1 });
 
 export default mongoose.models.Offer || mongoose.model<IOffer>('Offer', OfferSchema);

@@ -30,14 +30,14 @@ export async function sendVerificationEmail(
   });
 
   const mailOptions = {
-    from: `"WanderLust" <${process.env.SMTP_EMAIL}>`,
+    from: `"Cloudship Holidays" <${process.env.SMTP_EMAIL}>`,
     to: email,
-    subject: "Verify your WanderLust account",
+    subject: "Verify your Cloudship Holidays account",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: linear-gradient(135deg, #A92EDF, #6C63FF); padding: 24px; border-radius: 16px; color: white; box-shadow: 0 8px 20px rgba(0,0,0,0.15);">
         <div style="background: rgba(255,255,255,0.1); padding: 24px; border-radius: 12px; backdrop-filter: blur(8px);">
           <h2 style="color: #fff; text-align: center; font-size: 28px; margin-bottom: 16px;">
-            Welcome to WanderLust
+            Welcome to Cloudship Holidays
           </h2>
           <p style="font-size: 16px; line-height: 1.6; text-align: center;">
             Thanks for signing up! Please verify your email address to start your journey and unlock exclusive travel deals.
@@ -49,7 +49,7 @@ export async function sendVerificationEmail(
             </a>
           </div>
           <p style="font-size: 14px; color: rgba(255,255,255,0.8); text-align: center;">
-            If you didn’t sign up for WanderLust, please ignore this email.
+            If you didn’t sign up for Cloudship Holidays, please ignore this email.
           </p>
           <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.2); margin: 24px 0;">
           <p style="font-size: 12px; color: rgba(255,255,255,0.7); word-break: break-all; text-align: center;">
@@ -58,7 +58,7 @@ export async function sendVerificationEmail(
           </p>
         </div>
         <p style="text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin-top: 16px;">
-          © ${new Date().getFullYear()} WanderLust. All rights reserved.
+          © ${new Date().getFullYear()} Cloudship Holidays. All rights reserved.
         </p>
       </div>
     `,

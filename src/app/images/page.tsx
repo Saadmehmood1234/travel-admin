@@ -30,9 +30,9 @@ export default function Home() {
       const data = await res.json();
 
       if (page === 1) {
-        setImages(data.hits); // reset images on new search
+        setImages(data.hits); 
       } else {
-        setImages((prev) => [...prev, ...data.hits]); // append on load more
+        setImages((prev) => [...prev, ...data.hits]); 
       }
     };
     fetchImages();
@@ -48,12 +48,9 @@ export default function Home() {
     navigator.clipboard.writeText(url);
     alert("Image URL copied to clipboard!");
   };
-console.log(images,page,query,searchTerm)
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">Pixabay Image Search</h1>
-
-      {/* Search Bar */}
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">
         <input
           type="text"
@@ -69,8 +66,6 @@ console.log(images,page,query,searchTerm)
           Search
         </button>
       </form>
-
-      {/* Image Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {images.map((img) => (
           <div
@@ -96,8 +91,6 @@ console.log(images,page,query,searchTerm)
           </div>
         ))}
       </div>
-
-      {/* Load More */}
       {images.length > 0 && (
         <div className="flex justify-center mt-6">
           <button

@@ -38,7 +38,6 @@ const ProductLayout = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProducts();
-      console.log(res.data);
       setProducts(res.data || []); 
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -211,7 +210,7 @@ const handleEdit = async (e: React.FormEvent) => {
 
           const formattedPrice = new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency: "USD",
+            currency: "INR",
           }).format(price);
 
           return (

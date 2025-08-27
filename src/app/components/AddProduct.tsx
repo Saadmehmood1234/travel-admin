@@ -284,8 +284,6 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
             <Label htmlFor="isCommunityTrip">Community Trip</Label>
           </div>
         </div>
-
-        {/* Array Input Fields */}
         <div className="space-y-6">
           <div className="space-y-2">
             <Label>Highlights</Label>

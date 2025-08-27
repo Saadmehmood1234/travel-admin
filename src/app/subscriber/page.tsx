@@ -1,4 +1,3 @@
-// app/subscribers/page.tsx
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
@@ -34,7 +33,7 @@ export default function SubscribersPage() {
     router.push("/auth/signin");
     return;
   }
-  // Use useActionState instead of useFormState
+
   const [addState, addAction, isPending] = useActionState(
     addSubscriber, 
     { success: false, message: '' }
@@ -73,7 +72,6 @@ export default function SubscribersPage() {
     }
   };
 
-  // Function to format date safely
   const formatDate = (dateString: string) => {
     if (!dateString) return 'N/A';
     

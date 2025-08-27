@@ -1,4 +1,3 @@
-// app/actions/orderActions.ts
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -30,7 +29,6 @@ export interface OrderCreateInput {
   bookingDate?: Date;
 }
 
-// Create a new order
 export async function createOrder(formData: FormData) {
   await dbConnect()
   
@@ -44,7 +42,6 @@ export async function createOrder(formData: FormData) {
       specialRequests: formData.get("specialRequests") as string || undefined,
     };
 
-    // Validate required fields
     if (!orderData.userId || !orderData.trips || !orderData.totalAmount || 
         !orderData.paymentMethod || !orderData.contactInfo) {
       return { error: "Missing required fields" };
@@ -80,7 +77,6 @@ export async function getOrder(orderId: string) {
   }
 }
 
-// Get orders by user ID
 export async function getOrdersByUser(userId: string, page = 1, limit = 10) {
   await dbConnect();
   
@@ -154,7 +150,7 @@ export async function getAllOrders() {
     return { error: "Failed to fetch orders" };
   }
 }
-// Update order status
+
 export async function updateOrderStatus(orderId: string, status: string) {
   await dbConnect();
   
@@ -183,7 +179,6 @@ export async function updateOrderStatus(orderId: string, status: string) {
   }
 }
 
-// Update payment status
 export async function updatePaymentStatus(orderId: string, paymentStatus: string) {
   await dbConnect();
   
@@ -212,7 +207,6 @@ export async function updatePaymentStatus(orderId: string, paymentStatus: string
   }
 }
 
-// Delete order
 export async function deleteOrder(orderId: string) {
   await dbConnect();
   
@@ -231,7 +225,7 @@ export async function deleteOrder(orderId: string) {
   }
 }
 
-// actions/order.actions.ts
+
 import nodemailer from 'nodemailer';
 
 export async function sendOrderConfirmation(orderId: string) {

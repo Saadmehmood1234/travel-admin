@@ -1,4 +1,3 @@
-// types/nodemailer.d.ts
 declare module 'nodemailer' {
   export interface Transporter {}
   export interface SendMailOptions {}

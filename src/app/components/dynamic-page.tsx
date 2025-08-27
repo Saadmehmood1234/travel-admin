@@ -6,9 +6,7 @@ const DynamicPage = ({contentTitleBarContent,tableContent}:{
 contentTitleBarContent:ContentTitleBarProps,
 tableContent:any
 }) => {
-    // Content title bar 
-    // table 
-    // modal for crud operation
+
     return (
         <div className='flex flex-col gap-4'>
             <ContentTitleBar contentTitleBarContent={contentTitleBarContent} />

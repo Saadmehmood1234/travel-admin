@@ -6,7 +6,6 @@ import { ContactFormType } from "@/types/contact";
 import dbConnect from "@/lib/dbConnect";
 import { z } from "zod";
 
-// Updated Zod schema
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
@@ -23,7 +22,6 @@ const contactFormSchema = z.object({
 
 export const contactUs = async (data: ContactFormType) => {
   try {
-    // Convert string numbers to actual numbers
     const processedData = {
       ...data,
       adults: data.adults ? Number(data.adults) : 1,
@@ -79,7 +77,6 @@ export const contactUs = async (data: ContactFormType) => {
   };
 };
 
-// Add this to your contact.actions file (where contactUs is defined)
 export const deleteContactSubmission = async (id: string) => {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
@@ -105,7 +102,6 @@ export const deleteContactSubmission = async (id: string) => {
   }
 };
 
-// Add this to your contact.actions file as well
 export const getContactSubmissions = async () => {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {

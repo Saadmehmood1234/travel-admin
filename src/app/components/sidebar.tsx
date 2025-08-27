@@ -20,6 +20,7 @@ import {
   Mail,
   User,
   TicketPercent,
+  Plane,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import SignOutButton from "./SignOutButton";
@@ -42,6 +43,7 @@ const navItems = [
   { label: "Subscribers", icon: Mail, href: "/subscriber" },
   { label: "Contact", icon: MessageSquare, href: "/contact" },
   { label: "Offer", icon: TicketPercent, href: "/offer" },
+  { label: "Flight Booking", icon: Plane, href: "/flight-booking" },
   { label: "Payments", icon: CreditCard, href: "/payments" },
 ];
 
@@ -83,13 +85,10 @@ const navItems = [
           w-64
         `}
       >
-        {/* Header */}
         <div className="p-4 font-bold text-lg border-b border-gray-200 text-gray-800 flex items-center gap-2">
           <BarChart3 className="h-6 w-6 text-blue-600" />
           <span>Admin Panel</span>
         </div>
-
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto space-y-1 p-3">
           {navItems.map(({ label, icon: Icon, href }) => (
             <Link
@@ -104,10 +103,7 @@ const navItems = [
             </Link>
           ))}
         </nav>
-
-        {/* User profile section at the bottom */}
         <div className="p-4 border-t border-gray-200 space-y-4">
-          {/* User info */}
           <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
             <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
               <User className="h-5 w-5 text-blue-600" />
@@ -121,8 +117,6 @@ const navItems = [
               </p>
             </div>
           </div>
-
-          {/* Sign out button - now properly aligned */}
           <div className="px-2">
             <SignOutButton />
           </div>

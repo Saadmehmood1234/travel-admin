@@ -1,4 +1,3 @@
-// models/order.model.ts
 import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface IOrder extends Document {

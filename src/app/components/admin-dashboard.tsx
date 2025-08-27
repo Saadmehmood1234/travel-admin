@@ -35,17 +35,11 @@ export default function AdminDashboard() {
 const fetchStats = async () => {
   try {
     setIsLoading(true);
-    
-    // Get both product count and order stats
     const [productsResult, orderStats] = await Promise.all([
       getProductsCount(),
       getOrderStats()
     ]);
 
-    console.log("Products result:", productsResult);
-    console.log("Order stats:", orderStats);
-
-    // Check if both calls were successful
     if (productsResult.success && !orderStats.error) {
       setStats({
         totalDestinations: productsResult.count || 0,
@@ -62,10 +56,8 @@ const fetchStats = async () => {
     setIsLoading(false);
   }
 }
-console.log(stats)
   return (
     <div className="p-4 md:p-6 lg:p-8">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
@@ -78,8 +70,6 @@ console.log(stats)
           </Link>
         </Button>
       </div>
-
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-6 md:mb-8">
         <Card className="hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -133,8 +123,6 @@ console.log(stats)
           </CardContent>
         </Card>
       </div>
-
-      {/* Main Content */}
       <Tabs defaultValue="destinations" className="space-y-4">
         <TabsList className="w-full sm:w-auto grid grid-cols-2">
           <TabsTrigger value="destinations" className="text-sm md:text-base">

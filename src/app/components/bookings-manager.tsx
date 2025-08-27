@@ -23,7 +23,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (status === "loading") return; // Wait for session to load
+    if (status === "loading") return;
 
     if (!session) {
       router.push("/auth/signin");
@@ -35,7 +35,6 @@ export default function OrdersPage() {
         setLoading(true);
         const data = await getAllOrders();
         
-        // Ensure the data structure matches what we expect
         if (data && typeof data === 'object') {
           setOrdersData({
             orders: data.orders || [],
@@ -70,7 +69,7 @@ export default function OrdersPage() {
   }
 
   if (!session) {
-    return null; // Router will handle redirect
+    return null;
   }
 
   if (ordersData.error) {

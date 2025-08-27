@@ -38,7 +38,6 @@ const ProductLayout = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProducts();
-      console.log(res.data);
       setProducts(res.data || []); 
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -130,7 +129,6 @@ const handleEdit = async (e: React.FormEvent) => {
   
   setIsEditing(true);
   try {
-    // Validate category
     const validCategories = ["Beach", "Adventure", "Luxury", "Family-Friendly"] as const;
     const category = validCategories.includes(formData.category as any) 
       ? formData.category as "Beach" | "Adventure" | "Luxury" | "Family-Friendly"
@@ -144,14 +142,14 @@ const handleEdit = async (e: React.FormEvent) => {
       rating: formData.rating ? parseFloat(formData.rating) : undefined,
       reviews: parseInt(formData.reviews) || 0,
       featured: formData.featured,
-      category: category // Use the validated category
+      category: category 
     };
 
     const result = await updateProduct(productToEdit._id, updatedData);
 
     if (result.success) {
       toast.success("Product updated successfully");
-      fetchProducts(); // Refresh the product list
+      fetchProducts(); 
       closeEditModal();
     } else {
       throw new Error(result.error || "Failed to update product");
@@ -211,7 +209,7 @@ const handleEdit = async (e: React.FormEvent) => {
 
           const formattedPrice = new Intl.NumberFormat("en-US", {
             style: "currency",
-            currency: "USD",
+            currency: "INR",
           }).format(price);
 
           return (
@@ -295,8 +293,6 @@ const handleEdit = async (e: React.FormEvent) => {
         contentTitleBarContent={contentTitleBarContent}
         tableContent={tableContent}
       />
-
-      {/* Delete Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96">
@@ -324,7 +320,6 @@ const handleEdit = async (e: React.FormEvent) => {
         </div>
       )}
 
-      {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">

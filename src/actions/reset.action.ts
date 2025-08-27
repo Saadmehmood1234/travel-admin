@@ -9,7 +9,6 @@ import dbConnect from "@/lib/dbConnect";
 
 export async function sendPasswordResetEmail(formData: FormData) {
   const identifier = formData.get("email") as string;
-  console.log("identifier", identifier);
   try {
     await dbConnect();
 
@@ -79,8 +78,6 @@ export async function sendPasswordResetEmail(formData: FormData) {
         </div>
       `,
     });
-
-    console.log("Password reset email sent to:", email);
     return { success: true };
   } catch (error) {
     console.log("Password reset error:", error);
@@ -94,7 +91,6 @@ export async function sendPasswordResetEmail(formData: FormData) {
 export async function resetPassword(formData: FormData) {
   const token = formData.get("token") as string;
   const password = formData.get("password") as string;
-  console.log("resetPassword token", token, password);
 
   try {
     await dbConnect();

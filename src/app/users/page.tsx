@@ -340,7 +340,6 @@ export default function UsersTable() {
         </div>
       </div>
 
-      {/* View Details Dialog */}
       <Dialog open={viewDialogOpen} onOpenChange={setViewDialogOpen}>
         <DialogContent>
           <DialogHeader>
@@ -408,8 +407,6 @@ export default function UsersTable() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {/* Edit Role Dialog */}
       <AlertDialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -426,8 +423,6 @@ export default function UsersTable() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Delete User Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>

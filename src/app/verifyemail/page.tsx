@@ -39,10 +39,8 @@ export default function VerifyEmail() {
 
   return (
     <section className="flex w-full justify-center items-center py-8 pb-24 bg-white min-h-screen relative overflow-hidden">
-      {/* Subtle background pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-10" />
-      
-      {/* Decorative elements */}
+    
       <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-96 h-96 bg-gradient-to-tr from-gray-200 via-gray-300 to-gray-400 rounded-full blur-3xl opacity-20 animate-pulse" />
       <div className="absolute bottom-0 right-0 w-72 h-72 bg-gradient-to-tl from-gray-300 to-gray-200 rounded-full blur-3xl opacity-10" />
 
@@ -53,7 +51,6 @@ export default function VerifyEmail() {
         className="relative z-10 flex w-full flex-col items-center px-4 sm:px-6 lg:px-8"
       >
         <motion.div className="bg-white backdrop-blur-md border border-gray-300 rounded-3xl p-8 max-w-md w-full shadow-xl relative overflow-hidden">
-          {/* Inner subtle effect */}
           <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-80 h-80 bg-gradient-to-tr from-gray-200 via-gray-300 to-gray-400 rounded-full blur-3xl opacity-20" />
 
           <div className="flex flex-col items-center gap-4 relative">

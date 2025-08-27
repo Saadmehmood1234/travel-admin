@@ -1,4 +1,3 @@
-// types/payment.ts
 export interface PaymentLean {
   _id: unknown;
   razorpayOrderId: string;

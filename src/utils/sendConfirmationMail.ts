@@ -16,7 +16,7 @@ export async function sendConfirmationEmail({
   userName,
   orderDate,
   orderId,
-  websiteName = "Your Website",
+  websiteName = "Cloudship Holidays",
 }: EmailParams) {
   try {
     const transporter = nodemailer.createTransport({
