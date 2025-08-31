@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 "use client";
 
 import Link from "next/link";
@@ -21,6 +20,7 @@ import {
   User,
   TicketPercent,
   Plane,
+  Star, 
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import SignOutButton from "./SignOutButton";
@@ -33,24 +33,22 @@ export function Sidebar() {
     return null;
   }
 
-
-const navItems = [
-  { label: "Dashboard", icon: BarChart3, href: "/" },
-  { label: "Users", icon: Users, href: "/users" },
-  { label: "Products", icon: Package, href: "/products" },
-  { label: "Orders", icon: ShoppingCart, href: "/orders" },
-  { label: "Images", icon: Images, href: "/images" },
-  { label: "Subscribers", icon: Mail, href: "/subscriber" },
-  { label: "Contact", icon: MessageSquare, href: "/contact" },
-  { label: "Offer", icon: TicketPercent, href: "/offer" },
-  { label: "Flight Booking", icon: Plane, href: "/flight-booking" },
-  { label: "Payments", icon: CreditCard, href: "/payments" },
-];
-
+  const navItems = [
+    { label: "Dashboard", icon: BarChart3, href: "/" },
+    { label: "Users", icon: Users, href: "/users" },
+    { label: "Products", icon: Package, href: "/products" },
+    { label: "Orders", icon: ShoppingCart, href: "/orders" },
+    { label: "Images", icon: Images, href: "/images" },
+    { label: "Subscribers", icon: Mail, href: "/subscriber" },
+    { label: "Contact", icon: MessageSquare, href: "/contact" },
+    { label: "Offer", icon: TicketPercent, href: "/offer" },
+    { label: "Flight Booking", icon: Plane, href: "/flight-booking" },
+    { label: "Payments", icon: CreditCard, href: "/payments" },
+    { label: "Testimonials", icon: Star, href: "/testimonials" }, 
+  ];
 
   return (
     <>
-      {/* Mobile menu button */}
       <button
         className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md text-gray-700 border border-gray-200"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
