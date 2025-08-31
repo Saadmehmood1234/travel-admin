@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import SignOutButton from "./SignOutButton";
+import { FaBlog } from "react-icons/fa";
 
 export function Sidebar() {
   const { data: session, status } = useSession();
@@ -45,6 +46,7 @@ export function Sidebar() {
     { label: "Flight Booking", icon: Plane, href: "/flight-booking" },
     { label: "Payments", icon: CreditCard, href: "/payments" },
     { label: "Testimonials", icon: Star, href: "/testimonials" }, 
+    { label: "Blogs", icon: FaBlog, href: "/blogs" }, 
   ];
 
   return (
