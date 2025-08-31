@@ -1,7 +1,11 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import DynamicPage from "../components/dynamic-page";
-import { getProducts, deleteProduct, updateProduct } from "@/actions/product.actions";
+import {
+  getProducts,
+  deleteProduct,
+  updateProduct,
+} from "@/actions/product.actions";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -24,12 +28,13 @@ const ProductLayout = () => {
     rating: "",
     reviews: "",
     featured: false,
-    description: ""
+    description: "",
+    tripType: "Domestic",
   });
-  
+
   const router = useRouter();
   const { data: session, status } = useSession();
-  
+
   if (!session) {
     router.push("/auth/signin");
     return;
@@ -38,7 +43,7 @@ const ProductLayout = () => {
   const fetchProducts = async () => {
     try {
       const res = await getProducts();
-      setProducts(res.data || []); 
+      setProducts(res.data || []);
     } catch (error) {
       console.error("Error fetching products:", error);
     }
@@ -59,52 +64,59 @@ const ProductLayout = () => {
     setIsDeleting(false);
   };
 
-  const openEditModal = (product: any) => {
-    setProductToEdit(product);
-    setFormData({
-      name: product.name || "",
-      location: product.location || "",
-      category: product.category || "",
-      price: product.price?.toString() || "",
-      originalPrice: product.originalPrice?.toString() || "",
-      discount: product.discount?.toString() || "",
-      rating: product.rating?.toString() || "",
-      reviews: product.reviews?.toString() || "0",
-      featured: product.featured || false,
-      description: product.description || ""
-    });
-    setIsEditModalOpen(true);
-  };
+const openEditModal = (product: any) => {
+  setProductToEdit(product);
+  setFormData({
+    name: product.name || "",
+    location: product.location || "",
+    category: product.category || "",
+    price: product.price?.toString() || "",
+    originalPrice: product.originalPrice?.toString() || "",
+    discount: product.discount?.toString() || "",
+    rating: product.rating?.toString() || "",
+    reviews: product.reviews?.toString() || "0",
+    featured: product.featured || false,
+    description: product.description || "",
+    tripType: product.tripType || "Domestic", // Add tripType with default value
+  });
+  setIsEditModalOpen(true);
+};
 
-  const closeEditModal = () => {
-    setIsEditModalOpen(false);
-    setProductToEdit(null);
-    setIsEditing(false);
-    setFormData({
-      name: "",
-      location: "",
-      category: "",
-      price: "",
-      originalPrice: "",
-      discount: "",
-      rating: "",
-      reviews: "",
-      featured: false,
-      description: ""
-    });
-  };
+const closeEditModal = () => {
+  setIsEditModalOpen(false);
+  setProductToEdit(null);
+  setIsEditing(false);
+  setFormData({
+    name: "",
+    location: "",
+    category: "",
+    price: "",
+    originalPrice: "",
+    discount: "",
+    rating: "",
+    reviews: "",
+    featured: false,
+    description: "",
+    tripType: "Domestic", // Add tripType with default value
+  });
+};
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]:
+        type === "checkbox" ? (e.target as HTMLInputElement).checked : value,
     }));
   };
 
   const handleDelete = async () => {
     if (!productToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       const result = await deleteProduct(productToDelete);
@@ -123,7 +135,7 @@ const ProductLayout = () => {
     }
   };
 
-const handleEdit = async (e: React.FormEvent) => {
+ const handleEdit = async (e: React.FormEvent) => {
   e.preventDefault();
   if (!productToEdit) return;
   
@@ -134,6 +146,11 @@ const handleEdit = async (e: React.FormEvent) => {
       ? formData.category as "Beach" | "Adventure" | "Luxury" | "Family-Friendly"
       : undefined;
 
+    const validTripTypes = ["International", "Domestic"] as const;
+    const tripType = validTripTypes.includes(formData.tripType as any)
+      ? formData.tripType as "International" | "Domestic"
+      : "Domestic"; // Default value
+
     const updatedData = {
       ...formData,
       price: parseFloat(formData.price),
@@ -142,7 +159,8 @@ const handleEdit = async (e: React.FormEvent) => {
       rating: formData.rating ? parseFloat(formData.rating) : undefined,
       reviews: parseInt(formData.reviews) || 0,
       featured: formData.featured,
-      category: category 
+      category: category,
+      tripType: tripType // Add tripType to the updated data
     };
 
     const result = await updateProduct(productToEdit._id, updatedData);
@@ -298,7 +316,8 @@ const handleEdit = async (e: React.FormEvent) => {
           <div className="bg-white rounded-lg p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Confirm Delete</h3>
             <p className="text-gray-600 mb-6">
-              Are you sure you want to delete this product? This action cannot be undone.
+              Are you sure you want to delete this product? This action cannot
+              be undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button
@@ -368,6 +387,21 @@ const handleEdit = async (e: React.FormEvent) => {
                     <option value="Adventure">Adventure</option>
                     <option value="Luxury">Luxury</option>
                     <option value="Family-Friendly">Family-Friendly</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Trip Type
+                  </label>
+                  <select
+                    name="tripType"
+                    value={formData.tripType}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    required
+                  >
+                    <option value="Domestic">Domestic</option>
+                    <option value="International">International</option>
                   </select>
                 </div>
                 <div>

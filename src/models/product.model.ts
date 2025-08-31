@@ -9,17 +9,18 @@ export interface ProductInput extends Document {
   reviews: number;
   duration: string;
   category: "Beach" | "Adventure" | "Luxury" | "Family-Friendly";
+  tripType: "International" | "Domestic";
   image: string;
   featured: boolean;
   discount: number;
-  highlights: string[];          
-  groupSize: string;          
-  difficulty: "Easy" | "Moderate" | "Hard"; 
-  availableDates: Date[];      
-  inclusions: string[];           
-  exclusions: string[];           
-  itinerary: string[];           
-  isCommunityTrip: boolean;      
+  highlights: string[];
+  groupSize: string;
+  difficulty: "Easy" | "Moderate" | "Hard";
+  availableDates: Date[];
+  inclusions: string[];
+  exclusions: string[];
+  itinerary: string[];
+  isCommunityTrip: boolean;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -39,15 +40,22 @@ const ProductSchema: Schema = new Schema(
     image: { type: String, required: true },
     featured: { type: Boolean, default: false },
     discount: { type: Number, min: 0, max: 100, default: 0 },
-
     highlights: { type: [String], default: [] },
     groupSize: { type: String, default: "12-15" },
-    difficulty: { type: String, enum: ["Easy", "Moderate", "Hard"], default: "Moderate" },
+    difficulty: {
+      type: String,
+      enum: ["Easy", "Moderate", "Hard"],
+      default: "Moderate",
+    },
     availableDates: { type: [Date], default: [] },
     inclusions: { type: [String], default: [] },
     exclusions: { type: [String], default: [] },
     itinerary: { type: [String], default: [] },
     isCommunityTrip: { type: Boolean, default: true },
+    tripType: {
+      type: String,
+      enum: ["International", "Domestic"],
+    },
   },
   { timestamps: true }
 );

@@ -117,6 +117,7 @@ export interface ProductInput {
   reviews: number;
   duration: string;
   category: ProductCategory;
+  tripType: 'International' | 'Domestic';
   image: string;
   featured: boolean;
   discount: number;

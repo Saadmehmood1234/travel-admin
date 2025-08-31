@@ -13,6 +13,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import { createProduct } from "@/actions/product.actions";
+
 export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,6 +25,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
     reviews: 0,
     duration: "",
     category: "Beach" as "Beach" | "Adventure" | "Luxury" | "Family-Friendly",
+    tripType: "Domestic" as "International" | "Domestic", // Add tripType field
     image: "",
     featured: false,
     discount: 0,
@@ -174,6 +176,27 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
                 <SelectItem value="Adventure">Adventure</SelectItem>
                 <SelectItem value="Luxury">Luxury</SelectItem>
                 <SelectItem value="Family-Friendly">Family-Friendly</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Add Trip Type Select Field */}
+          <div className="space-y-2">
+            <Label htmlFor="tripType">Trip Type*</Label>
+            <Select
+              value={formData.tripType}
+              onValueChange={(value) => setFormData(prev => ({
+                ...prev,
+                tripType: value as typeof formData.tripType,
+              }))}
+              required
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select trip type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Domestic">Domestic</SelectItem>
+                <SelectItem value="International">International</SelectItem>
               </SelectContent>
             </Select>
           </div>

@@ -2,6 +2,7 @@ import { Document } from "mongoose";
 
 export type ProductCategory = "Beach" | "Adventure" | "Luxury" | "Family-Friendly";
 export type DifficultyLevel = "Easy" | "Moderate" | "Hard";
+export type TripType = "International" | "Domestic"; // Add TripType
 
 export interface ProductData {
   name: string;
@@ -12,7 +13,8 @@ export interface ProductData {
   reviews: number;
   duration: string;
   category: ProductCategory;
-  images: string[];
+  tripType: TripType; // Add tripType field
+  image: string;
   featured: boolean;
   discount: number;
   highlights: string[];
