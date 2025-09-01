@@ -52,7 +52,7 @@ export function Sidebar() {
   return (
     <>
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-white shadow-md text-gray-700 border border-gray-200"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 rounded-md bg-card shadow-md text-card-foreground border border-border"
         onClick={() => setIsMobileOpen(!isMobileOpen)}
         aria-label="Toggle menu"
       >
@@ -66,7 +66,7 @@ export function Sidebar() {
       {/* Overlay for mobile */}
       {isMobileOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          className="md:hidden fixed inset-0 bg-background/80 backdrop-blur-sm z-40"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -74,7 +74,7 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={`
-          bg-white border-r border-gray-200 flex flex-col
+          bg-sidebar border-r border-sidebar-border flex flex-col
           fixed md:sticky top-0 left-0 h-screen z-40
           transition-transform duration-300 ease-in-out
           ${
@@ -85,8 +85,8 @@ export function Sidebar() {
           w-64
         `}
       >
-        <div className="p-4 font-bold text-lg border-b border-gray-200 text-gray-800 flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-blue-600" />
+        <div className="p-4 font-bold text-lg border-b border-sidebar-border text-sidebar-foreground flex items-center gap-2">
+          <BarChart3 className="h-6 w-6 text-sidebar-primary" />
           <span>Admin Panel</span>
         </div>
         <nav className="flex-1 overflow-y-auto space-y-1 p-3">
@@ -94,25 +94,25 @@ export function Sidebar() {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-gray-700 
-                         hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+              className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm font-medium text-sidebar-foreground 
+                         hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors group"
               onClick={() => setIsMobileOpen(false)}
             >
-              <Icon className="h-4 w-4 group-hover:scale-110 transition-transform text-gray-500 group-hover:text-blue-600" />
+              <Icon className="h-4 w-4 group-hover:scale-110 transition-transform text-muted-foreground group-hover:text-sidebar-primary" />
               <span>{label}</span>
             </Link>
           ))}
         </nav>
-        <div className="p-4 border-t border-gray-200 space-y-4">
-          <div className="flex items-center gap-3 p-2 rounded-lg bg-gray-50">
-            <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
-              <User className="h-5 w-5 text-blue-600" />
+        <div className="p-4 border-t border-sidebar-border space-y-4">
+          <div className="flex items-center gap-3 p-2 rounded-lg bg-sidebar-accent">
+            <div className="w-10 h-10 rounded-full bg-sidebar-primary/10 flex items-center justify-center border border-sidebar-primary/20">
+              <User className="h-5 w-5 text-sidebar-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+              <p className="text-sm font-medium text-sidebar-foreground truncate">
                 {session.user?.name || "Admin User"}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {session.user?.email || "admin@example.com"}
               </p>
             </div>

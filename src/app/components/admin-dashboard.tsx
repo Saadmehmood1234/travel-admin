@@ -60,8 +60,8 @@ const fetchStats = async () => {
     <div className="p-4 md:p-6 lg:p-8">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6 md:mb-8">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 text-sm md:text-base">Manage your travel agency</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground">Admin Dashboard</h1>
+          <p className="text-muted-foreground text-sm md:text-base">Manage your travel agency</p>
         </div>
         <Button asChild className="w-full sm:w-auto">
           <Link href="/" className="flex items-center gap-2">
@@ -78,7 +78,7 @@ const fetchStats = async () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? <div className="h-8 bg-gray-200 rounded animate-pulse"></div> : stats.totalDestinations}
+              {isLoading ? <div className="h-8 bg-muted rounded animate-pulse"></div> : stats.totalDestinations}
             </div>
           </CardContent>
         </Card>
@@ -90,7 +90,7 @@ const fetchStats = async () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? <div className="h-8 bg-gray-200 rounded animate-pulse"></div> : stats.totalBookings}
+              {isLoading ? <div className="h-8 bg-muted rounded animate-pulse"></div> : stats.totalBookings}
             </div>
           </CardContent>
         </Card>
@@ -103,7 +103,7 @@ const fetchStats = async () => {
           <CardContent>
             <div className="text-2xl font-bold">
               {isLoading ? (
-                <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+                <div className="h-8 bg-muted rounded animate-pulse"></div>
               ) : (
                 `₹${stats.totalRevenue.toLocaleString()}`
               )}
@@ -118,7 +118,7 @@ const fetchStats = async () => {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? <div className="h-8 bg-gray-200 rounded animate-pulse"></div> : stats.pendingBookings}
+              {isLoading ? <div className="h-8 bg-muted rounded animate-pulse"></div> : stats.pendingBookings}
             </div>
           </CardContent>
         </Card>
