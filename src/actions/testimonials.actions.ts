@@ -24,8 +24,7 @@ export async function getTestimonials(): Promise<FrontendTestimonial[]> {
   try {
     await dbConnect();
     const testimonials = await Testimonial.find({}).sort({ createdAt: -1 });
-    
-    // Convert MongoDB documents to plain objects with string _id
+
     return testimonials.map(doc => ({
       _id: doc._id.toString(),
       name: doc.name,
