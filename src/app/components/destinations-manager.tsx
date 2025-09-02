@@ -111,7 +111,7 @@ const ProductLayout = () => {
 
       if (result.success) {
         toast.success("Product deleted successfully");
-        fetchProducts(); // Refresh the product list
+        fetchProducts(); 
         closeDeleteModal();
       } else {
         throw new Error(result.error || "Failed to delete product");
@@ -129,7 +129,6 @@ const handleEdit = async (e: React.FormEvent) => {
   
   setIsEditing(true);
   try {
-    // Validate category
     const validCategories = ["Beach", "Adventure", "Luxury", "Family-Friendly"] as const;
     const category = validCategories.includes(formData.category as any) 
       ? formData.category as "Beach" | "Adventure" | "Luxury" | "Family-Friendly"
@@ -143,14 +142,14 @@ const handleEdit = async (e: React.FormEvent) => {
       rating: formData.rating ? parseFloat(formData.rating) : undefined,
       reviews: parseInt(formData.reviews) || 0,
       featured: formData.featured,
-      category: category // Use the validated category
+      category: category 
     };
 
     const result = await updateProduct(productToEdit._id, updatedData);
 
     if (result.success) {
       toast.success("Product updated successfully");
-      fetchProducts(); // Refresh the product list
+      fetchProducts();
       closeEditModal();
     } else {
       throw new Error(result.error || "Failed to update product");
@@ -219,7 +218,7 @@ const handleEdit = async (e: React.FormEvent) => {
                 <span className="line-through text-gray-400 mr-2">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
-                    currency: "USD",
+                    currency: "INR",
                   }).format(originalPrice)}
                 </span>
               )}

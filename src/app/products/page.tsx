@@ -77,7 +77,7 @@ const openEditModal = (product: any) => {
     reviews: product.reviews?.toString() || "0",
     featured: product.featured || false,
     description: product.description || "",
-    tripType: product.tripType || "Domestic", // Add tripType with default value
+    tripType: product.tripType || "Domestic", 
   });
   setIsEditModalOpen(true);
 };
@@ -97,7 +97,7 @@ const closeEditModal = () => {
     reviews: "",
     featured: false,
     description: "",
-    tripType: "Domestic", // Add tripType with default value
+    tripType: "Domestic",
   });
 };
 
@@ -123,7 +123,7 @@ const closeEditModal = () => {
 
       if (result.success) {
         toast.success("Product deleted successfully");
-        fetchProducts(); // Refresh the product list
+        fetchProducts(); 
         closeDeleteModal();
       } else {
         throw new Error(result.error || "Failed to delete product");
@@ -149,7 +149,7 @@ const closeEditModal = () => {
     const validTripTypes = ["International", "Domestic"] as const;
     const tripType = validTripTypes.includes(formData.tripType as any)
       ? formData.tripType as "International" | "Domestic"
-      : "Domestic"; // Default value
+      : "Domestic";
 
     const updatedData = {
       ...formData,
@@ -160,7 +160,7 @@ const closeEditModal = () => {
       reviews: parseInt(formData.reviews) || 0,
       featured: formData.featured,
       category: category,
-      tripType: tripType // Add tripType to the updated data
+      tripType: tripType
     };
 
     const result = await updateProduct(productToEdit._id, updatedData);
@@ -236,7 +236,7 @@ const closeEditModal = () => {
                 <span className="line-through text-gray-400 mr-2">
                   {new Intl.NumberFormat("en-US", {
                     style: "currency",
-                    currency: "USD",
+                    currency: "INR",
                   }).format(originalPrice)}
                 </span>
               )}

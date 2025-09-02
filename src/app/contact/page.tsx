@@ -12,7 +12,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Eye, MapPin, Plane, Users, Calendar, Clock, Download } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Trash2, Eye, MapPin, Plane, Users, Calendar, Clock, Download, Filter, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +30,7 @@ import {
 } from "@/components/ui/dialog";
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
+import { Badge } from '@/components/ui/badge';
 
 interface ContactSubmission {
   _id: string;
@@ -39,11 +48,40 @@ interface ContactSubmission {
   createdAt: string;
 }
 
+interface FilterOptions {
+  destination: string;
+  flightRequired: string;
+  tripPlanningStatus: string;
+  timeToBook: string;
+  minAdults: string;
+  minChildren: string;
+  dateRange: {
+    start: string;
+    end: string;
+  };
+  search: string;
+}
+
 export default function ContactSubmissionsPage() {
   const [submissions, setSubmissions] = useState<ContactSubmission[]>([]);
+  const [filteredSubmissions, setFilteredSubmissions] = useState<ContactSubmission[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedSubmission, setSelectedSubmission] = useState<ContactSubmission | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    destination: 'all',
+    flightRequired: 'all',
+    tripPlanningStatus: 'all',
+    timeToBook: 'all',
+    minAdults: '',
+    minChildren: '',
+    dateRange: {
+      start: '',
+      end: ''
+    },
+    search: ''
+  });
   const router = useRouter();
   const { data: session, status } = useSession();
 
@@ -56,6 +94,10 @@ export default function ContactSubmissionsPage() {
     loadSubmissions();
   }, [session, status, router]);
 
+  useEffect(() => {
+    applyFilters();
+  }, [submissions, filterOptions]);
+
   const loadSubmissions = async () => {
     setIsLoading(true);
     try {
@@ -66,6 +108,104 @@ export default function ContactSubmissionsPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const applyFilters = () => {
+    let filtered = [...submissions];
+    if (filterOptions.search) {
+      const searchTerm = filterOptions.search.toLowerCase();
+      filtered = filtered.filter(submission => 
+        submission.name.toLowerCase().includes(searchTerm) ||
+        submission.email.toLowerCase().includes(searchTerm) ||
+        (submission.phone && submission.phone.toLowerCase().includes(searchTerm)) ||
+        (submission.destination && submission.destination.toLowerCase().includes(searchTerm)) ||
+        (submission.additionalDetails && submission.additionalDetails.toLowerCase().includes(searchTerm))
+      );
+    }
+    if (filterOptions.destination && filterOptions.destination !== 'all') {
+      filtered = filtered.filter(submission => 
+        submission.destination === filterOptions.destination
+      );
+    }
+    if (filterOptions.flightRequired && filterOptions.flightRequired !== 'all') {
+      filtered = filtered.filter(submission => 
+        submission.flightRequired === filterOptions.flightRequired
+      );
+    }
+    if (filterOptions.tripPlanningStatus && filterOptions.tripPlanningStatus !== 'all') {
+      filtered = filtered.filter(submission => 
+        submission.tripPlanningStatus === filterOptions.tripPlanningStatus
+      );
+    }
+
+    if (filterOptions.timeToBook && filterOptions.timeToBook !== 'all') {
+      filtered = filtered.filter(submission => 
+        submission.timeToBook === filterOptions.timeToBook
+      );
+    }
+    if (filterOptions.minAdults) {
+      const minAdults = parseInt(filterOptions.minAdults);
+      filtered = filtered.filter(submission => 
+        (submission.adults || 0) >= minAdults
+      );
+    }
+    if (filterOptions.minChildren) {
+      const minChildren = parseInt(filterOptions.minChildren);
+      filtered = filtered.filter(submission => 
+        (submission.children || 0) >= minChildren
+      );
+    }
+    if (filterOptions.dateRange.start) {
+      const startDate = new Date(filterOptions.dateRange.start);
+      filtered = filtered.filter(submission => {
+        const submissionDate = new Date(submission.createdAt);
+        return submissionDate >= startDate;
+      });
+    }
+
+    if (filterOptions.dateRange.end) {
+      const endDate = new Date(filterOptions.dateRange.end);
+      endDate.setHours(23, 59, 59, 999); 
+      filtered = filtered.filter(submission => {
+        const submissionDate = new Date(submission.createdAt);
+        return submissionDate <= endDate;
+      });
+    }
+
+    setFilteredSubmissions(filtered);
+  };
+
+  const handleFilterChange = (key: keyof FilterOptions, value: any) => {
+    setFilterOptions(prev => ({
+      ...prev,
+      [key]: value
+    }));
+  };
+
+  const handleDateRangeChange = (key: 'start' | 'end', value: string) => {
+    setFilterOptions(prev => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [key]: value
+      }
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilterOptions({
+      destination: 'all',
+      flightRequired: 'all',
+      tripPlanningStatus: 'all',
+      timeToBook: 'all',
+      minAdults: '',
+      minChildren: '',
+      dateRange: {
+        start: '',
+        end: ''
+      },
+      search: ''
+    });
   };
 
   const handleDelete = async (id: string) => {
@@ -123,7 +263,7 @@ export default function ContactSubmissionsPage() {
   };
 
   const exportToExcel = () => {
-    // Create CSV content with only necessary data
+    const dataToExport = filteredSubmissions.length > 0 ? filteredSubmissions : submissions;
     const headers = [
       'Name',
       'Email',
@@ -140,7 +280,7 @@ export default function ContactSubmissionsPage() {
 
     const csvContent = [
       headers.join(','),
-      ...submissions.map(submission => [
+      ...dataToExport.map(submission => [
         `"${submission.name.replace(/"/g, '""')}"`,
         submission.email,
         submission.phone || '',
@@ -155,7 +295,6 @@ export default function ContactSubmissionsPage() {
       ].join(','))
     ].join('\n');
 
-    // Create download link
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -166,6 +305,25 @@ export default function ContactSubmissionsPage() {
     link.click();
     document.body.removeChild(link);
   };
+
+  const uniqueDestinations = Array.from(new Set(
+    submissions.map(s => s.destination).filter(Boolean)
+  ));
+  
+  const uniquePlanningStatuses = Array.from(new Set(
+    submissions.map(s => s.tripPlanningStatus).filter(Boolean)
+  ));
+  
+  const uniqueTimeToBook = Array.from(new Set(
+    submissions.map(s => s.timeToBook).filter(Boolean)
+  ));
+
+  const activeFiltersCount = Object.values(filterOptions).filter(value => {
+    if (typeof value === 'object') {
+      return Object.values(value).some(v => v !== '');
+    }
+    return value !== '' && value !== 'all';
+  }).length;
 
   if (status === 'loading' || isLoading) {
     return (
@@ -186,16 +344,172 @@ export default function ContactSubmissionsPage() {
               Export to Excel
             </Button>
           )}
+          <Button 
+            onClick={() => setShowFilters(!showFilters)} 
+            variant="outline" 
+            className="flex items-center gap-2"
+          >
+            <Filter className="h-4 w-4" />
+            Filters
+            {activeFiltersCount > 0 && (
+              <Badge variant="secondary" className="ml-1">
+                {activeFiltersCount}
+              </Badge>
+            )}
+          </Button>
           <Button onClick={loadSubmissions} variant="outline">
             Refresh
           </Button>
         </div>
       </div>
+      {showFilters && (
+        <Card>
+          <CardHeader className="pb-3">
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-lg">Filters</CardTitle>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={clearFilters}>
+                  <X className="h-4 w-4 mr-1" />
+                  Clear All
+                </Button>
+                <Button size="sm" onClick={applyFilters}>Apply Filters</Button>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Search</label>
+              <Input
+                placeholder="Search across all fields..."
+                value={filterOptions.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Destination</label>
+              <Select
+                value={filterOptions.destination}
+                onValueChange={(value) => handleFilterChange('destination', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select destination" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All destinations</SelectItem>
+                  {uniqueDestinations.map(destination => (
+                    <SelectItem key={destination} value={destination as string}>
+                      {destination}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Flight Required</label>
+              <Select
+                value={filterOptions.flightRequired}
+                onValueChange={(value) => handleFilterChange('flightRequired', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Flight required?" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All</SelectItem>
+                  <SelectItem value="Yes">Yes</SelectItem>
+                  <SelectItem value="No">No</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Planning Status</label>
+              <Select
+                value={filterOptions.tripPlanningStatus}
+                onValueChange={(value) => handleFilterChange('tripPlanningStatus', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  {uniquePlanningStatuses.map(status => (
+                    <SelectItem key={status} value={status as string}>
+                      {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Time to Book</label>
+              <Select
+                value={filterOptions.timeToBook}
+                onValueChange={(value) => handleFilterChange('timeToBook', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time frame" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All time frames</SelectItem>
+                  {uniqueTimeToBook.map(time => (
+                    <SelectItem key={time} value={time as string}>
+                      {time}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Minimum Adults</label>
+              <Input
+                type="number"
+                min="0"
+                placeholder="Min adults"
+                value={filterOptions.minAdults}
+                onChange={(e) => handleFilterChange('minAdults', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Minimum Children</label>
+              <Input
+                type="number"
+                min="0"
+                placeholder="Min children"
+                value={filterOptions.minChildren}
+                onChange={(e) => handleFilterChange('minChildren', e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Date Range (Submission Date)</label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  type="date"
+                  placeholder="Start date"
+                  value={filterOptions.dateRange.start}
+                  onChange={(e) => handleDateRangeChange('start', e.target.value)}
+                />
+                <Input
+                  type="date"
+                  placeholder="End date"
+                  value={filterOptions.dateRange.end}
+                  onChange={(e) => handleDateRangeChange('end', e.target.value)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>
           <CardTitle>All Travel Consultation Requests</CardTitle>
-          <CardDescription>Travel planning requests received through the contact form</CardDescription>
+          <CardDescription>
+            {filteredSubmissions.length > 0 ? `Showing ${filteredSubmissions.length} of ${submissions.length} requests` : 
+             submissions.length > 0 ? `${submissions.length} requests found` : 'No requests found'}
+            {activeFiltersCount > 0 && ' (filtered)'}
+          </CardDescription>
         </CardHeader>
         <CardContent>
           {submissions.length === 0 ? (
@@ -217,7 +531,7 @@ export default function ContactSubmissionsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissions.map((submission) => (
+                  {(filteredSubmissions.length > 0 ? filteredSubmissions : submissions).map((submission) => (
                     <TableRow key={submission._id}>
                       <TableCell className="font-medium">{submission.name}</TableCell>
                       <TableCell>{submission.email}</TableCell>
