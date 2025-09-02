@@ -64,7 +64,7 @@ const fetchStats = async () => {
           <p className="text-muted-foreground text-sm md:text-base">Manage your travel agency</p>
         </div>
         <Button asChild className="w-full sm:w-auto">
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="https://travel-site-red-tau.vercel.app" className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Website
           </Link>
