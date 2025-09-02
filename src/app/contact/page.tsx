@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Trash2, Eye, MapPin, Plane, Users, Calendar, Clock } from 'lucide-react';
+import { Trash2, Eye, MapPin, Plane, Users, Calendar, Clock, Download } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -104,6 +104,69 @@ export default function ContactSubmissionsPage() {
     }
   };
 
+  const formatDateForExport = (dateString: string) => {
+    if (!dateString) return '';
+    
+    try {
+      const date = new Date(dateString);
+      return isNaN(date.getTime()) 
+        ? '' 
+        : date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+          });
+    } catch (error) {
+      console.error('Error formatting date for export:', error);
+      return '';
+    }
+  };
+
+  const exportToExcel = () => {
+    // Create CSV content with only necessary data
+    const headers = [
+      'Name',
+      'Email',
+      'Phone',
+      'Destination',
+      'Travel Date',
+      'Adults',
+      'Children',
+      'Flight Required',
+      'Planning Status',
+      'Time to Book',
+      'Submitted Date'
+    ];
+
+    const csvContent = [
+      headers.join(','),
+      ...submissions.map(submission => [
+        `"${submission.name.replace(/"/g, '""')}"`,
+        submission.email,
+        submission.phone || '',
+        submission.destination || '',
+        formatDateForExport(submission.travelDate || ''),
+        submission.adults || '',
+        submission.children || '',
+        submission.flightRequired || '',
+        submission.tripPlanningStatus || '',
+        submission.timeToBook || '',
+        formatDateForExport(submission.createdAt)
+      ].join(','))
+    ].join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'travel-consultation-requests.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (status === 'loading' || isLoading) {
     return (
       <div className="container mx-auto p-6 flex justify-center items-center h-64">
@@ -116,9 +179,17 @@ export default function ContactSubmissionsPage() {
     <div className="container mx-auto p-6 space-y-8">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Travel Consultation Requests</h1>
-        <Button onClick={loadSubmissions} variant="outline">
-          Refresh
-        </Button>
+        <div className="flex gap-2">
+          {submissions.length > 0 && (
+            <Button onClick={exportToExcel} className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Export to Excel
+            </Button>
+          )}
+          <Button onClick={loadSubmissions} variant="outline">
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <Card>
