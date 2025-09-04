@@ -25,7 +25,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
     reviews: 0,
     duration: "",
     category: "Beach" as "Beach" | "Adventure" | "Luxury" | "Family-Friendly",
-    tripType: "Domestic" as "International" | "Domestic", // Add tripType field
+    tripType: "Domestic" as "International" | "Domestic",
     image: "",
     featured: false,
     discount: 0,
@@ -36,7 +36,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
     inclusions: [] as string[],
     exclusions: [] as string[],
     itinerary: [] as string[],
-    isCommunityTrip: true,
+    isCommunityTrip: false,
   });
 
   const [highlightInput, setHighlightInput] = useState("");
@@ -78,7 +78,7 @@ export default function AddProductForm({ onSuccess }: { onSuccess?: () => void }
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+console.log(formData)
     try {
       const finalData = {
         ...formData,

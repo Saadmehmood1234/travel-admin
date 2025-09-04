@@ -140,9 +140,9 @@ export const createProduct = async (
 }> => {
   try {
     await dbConnect();
-
+console.log("Before Creation",productData)
     const product = await Product.create(productData);
-
+           console.log("After Creation",product)
     return {
       success: true,
       data: serializeProduct(product),

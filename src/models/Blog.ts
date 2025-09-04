@@ -1,10 +1,18 @@
 import mongoose, { Document, Schema, Types } from 'mongoose';
 
+export interface IContentBlock {
+  type: 'paragraph' | 'subheading' | 'image' | 'code' | 'quote';
+  content: string;
+  level?: number;
+  language?: string;
+  caption?: string;
+}
+
 export interface IBlog extends Document {
   _id: Types.ObjectId;
   title: string;
   excerpt: string;
-  content: string;
+  content: IContentBlock[];
   image: string;
   author: string;
   date: Date;
@@ -15,6 +23,31 @@ export interface IBlog extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+const ContentBlockSchema: Schema = new Schema({
+  type: {
+    type: String,
+    enum: ['paragraph', 'subheading', 'image', 'code', 'quote'],
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  level: {
+    type: Number,
+    min: 1,
+    max: 6,
+    default: 2
+  },
+  language: {
+    type: String,
+    default: 'javascript'
+  },
+  caption: {
+    type: String
+  }
+});
 
 const BlogSchema: Schema = new Schema(
   {
@@ -27,10 +60,7 @@ const BlogSchema: Schema = new Schema(
       type: String,
       required: true,
     },
-    content: {
-      type: String,
-      required: true,
-    },
+    content: [ContentBlockSchema],
     image: {
       type: String,
       required: true,

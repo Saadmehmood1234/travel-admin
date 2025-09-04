@@ -51,7 +51,7 @@ const ProductSchema: Schema = new Schema(
     inclusions: { type: [String], default: [] },
     exclusions: { type: [String], default: [] },
     itinerary: { type: [String], default: [] },
-    isCommunityTrip: { type: Boolean, default: true },
+    isCommunityTrip: { type: Boolean, default: false },
     tripType: {
       type: String,
       enum: ["International", "Domestic"],
